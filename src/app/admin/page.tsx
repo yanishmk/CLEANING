@@ -19,6 +19,16 @@ type Quote = {
   message: string;
   preferredDate?: string;
   preferredTime?: string;
+  propertyType?: string;
+  spaceSize?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  rooms?: string;
+  currentCondition?: string;
+  frequency?: string;
+  extras?: string;
+  accessNotes?: string;
+  budget?: string;
   estimate?: string;
   nextVisit?: string;
   assignedWorkerName?: string;
@@ -153,6 +163,11 @@ export default function AdminPage() {
           quote.city,
           quote.address,
           quote.assignedWorkerName,
+          quote.propertyType,
+          quote.spaceSize,
+          quote.currentCondition,
+          quote.frequency,
+          quote.extras,
         ]
           .join(' ')
           .toLowerCase()
@@ -450,6 +465,49 @@ export default function AdminPage() {
                     <p>{selectedQuote.workerPay ? `Paiement: ${selectedQuote.workerPay}` : 'Prix interne à définir'}</p>
                   </article>
                 </div>
+
+                <article className="estimate-brief">
+                  <div>
+                    <span>Type</span>
+                    <strong>{selectedQuote.propertyType || selectedQuote.service}</strong>
+                  </div>
+                  <div>
+                    <span>Surface</span>
+                    <strong>{selectedQuote.spaceSize || 'A confirmer'}</strong>
+                  </div>
+                  <div>
+                    <span>Etat</span>
+                    <strong>{selectedQuote.currentCondition || 'A confirmer'}</strong>
+                  </div>
+                  <div>
+                    <span>Frequence</span>
+                    <strong>{selectedQuote.frequency || 'A confirmer'}</strong>
+                  </div>
+                  <div>
+                    <span>Pieces</span>
+                    <strong>
+                      {[
+                        selectedQuote.bedrooms && `${selectedQuote.bedrooms} ch.`,
+                        selectedQuote.bathrooms && `${selectedQuote.bathrooms} sdb`,
+                        selectedQuote.rooms && `${selectedQuote.rooms} pieces`,
+                      ]
+                        .filter(Boolean)
+                        .join(' / ') || 'A confirmer'}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Options</span>
+                    <strong>{selectedQuote.extras || 'Aucune option'}</strong>
+                  </div>
+                  <div>
+                    <span>Budget</span>
+                    <strong>{selectedQuote.budget || 'Non indique'}</strong>
+                  </div>
+                  <div>
+                    <span>Acces</span>
+                    <strong>{selectedQuote.accessNotes || 'A confirmer'}</strong>
+                  </div>
+                </article>
 
                 <details className="manager-note collapsible-panel">
                   <summary>

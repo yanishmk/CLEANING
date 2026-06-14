@@ -17,6 +17,16 @@ export type QuoteSubmission = {
   message: string;
   preferredDate?: string;
   preferredTime?: string;
+  propertyType?: string;
+  spaceSize?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  rooms?: string;
+  currentCondition?: string;
+  frequency?: string;
+  extras?: string;
+  accessNotes?: string;
+  budget?: string;
   estimate?: string;
   nextVisit?: string;
   assignedWorkerName?: string;
@@ -75,6 +85,16 @@ type SupabaseQuoteRow = {
   message: string;
   preferred_date?: string | null;
   preferred_time?: string | null;
+  property_type?: string | null;
+  space_size?: string | null;
+  bedrooms?: string | null;
+  bathrooms?: string | null;
+  rooms?: string | null;
+  current_condition?: string | null;
+  frequency?: string | null;
+  extras?: string | null;
+  access_notes?: string | null;
+  budget?: string | null;
   estimate?: string | null;
   next_visit?: string | null;
   assigned_worker_name?: string | null;
@@ -124,6 +144,16 @@ const demoDb: CleaningDb = {
       message: 'Maison 3 chambres, nettoyage aux deux semaines.',
       preferredDate: '2026-06-13',
       preferredTime: '09:00',
+      propertyType: 'Maison',
+      spaceSize: '1500-2000 pi2',
+      bedrooms: '3',
+      bathrooms: '2',
+      rooms: '7',
+      currentCondition: 'Normal',
+      frequency: 'Aux 2 semaines',
+      extras: 'Four, Vitres interieures',
+      accessNotes: 'Stationnement dans l entree.',
+      budget: '150 $',
       estimate: '145 $ / visite',
       nextVisit: '2026-06-13T09:00',
       assignedWorkerName: 'Samir',
@@ -242,6 +272,16 @@ function toQuote(row: SupabaseQuoteRow): QuoteSubmission {
     message: row.message,
     preferredDate: row.preferred_date ?? undefined,
     preferredTime: row.preferred_time ?? undefined,
+    propertyType: row.property_type ?? undefined,
+    spaceSize: row.space_size ?? undefined,
+    bedrooms: row.bedrooms ?? undefined,
+    bathrooms: row.bathrooms ?? undefined,
+    rooms: row.rooms ?? undefined,
+    currentCondition: row.current_condition ?? undefined,
+    frequency: row.frequency ?? undefined,
+    extras: row.extras ?? undefined,
+    accessNotes: row.access_notes ?? undefined,
+    budget: row.budget ?? undefined,
     estimate: row.estimate ?? undefined,
     nextVisit: row.next_visit ?? undefined,
     assignedWorkerName: row.assigned_worker_name ?? undefined,
@@ -333,6 +373,16 @@ function quotePayload(quote: QuoteSubmission) {
     message: quote.message,
     preferred_date: quote.preferredDate || null,
     preferred_time: quote.preferredTime || null,
+    property_type: quote.propertyType || null,
+    space_size: quote.spaceSize || null,
+    bedrooms: quote.bedrooms || null,
+    bathrooms: quote.bathrooms || null,
+    rooms: quote.rooms || null,
+    current_condition: quote.currentCondition || null,
+    frequency: quote.frequency || null,
+    extras: quote.extras || null,
+    access_notes: quote.accessNotes || null,
+    budget: quote.budget || null,
   };
 }
 
@@ -463,6 +513,16 @@ export async function createQuote(input: Record<string, unknown>) {
     city: normalize(input.city),
     preferredDate: normalize(input.preferredDate),
     preferredTime: normalize(input.preferredTime),
+    propertyType: normalize(input.propertyType),
+    spaceSize: normalize(input.spaceSize),
+    bedrooms: normalize(input.bedrooms),
+    bathrooms: normalize(input.bathrooms),
+    rooms: normalize(input.rooms),
+    currentCondition: normalize(input.currentCondition),
+    frequency: normalize(input.frequency),
+    extras: Array.isArray(input.extras) ? input.extras.map(normalize).filter(Boolean).join(', ') : normalize(input.extras),
+    accessNotes: normalize(input.accessNotes),
+    budget: normalize(input.budget),
     message: normalize(input.message),
   };
 

@@ -13,6 +13,16 @@ create table if not exists public.quotes (
   message text not null default '',
   preferred_date date,
   preferred_time time,
+  property_type text not null default '',
+  space_size text not null default '',
+  bedrooms text not null default '',
+  bathrooms text not null default '',
+  rooms text not null default '',
+  current_condition text not null default '',
+  frequency text not null default '',
+  extras text not null default '',
+  access_notes text not null default '',
+  budget text not null default '',
   estimate text,
   next_visit text,
   assigned_worker_name text,
@@ -26,6 +36,16 @@ create index if not exists quotes_email_idx on public.quotes (lower(email));
 alter table public.quotes add column if not exists address text not null default '';
 alter table public.quotes add column if not exists preferred_date date;
 alter table public.quotes add column if not exists preferred_time time;
+alter table public.quotes add column if not exists property_type text not null default '';
+alter table public.quotes add column if not exists space_size text not null default '';
+alter table public.quotes add column if not exists bedrooms text not null default '';
+alter table public.quotes add column if not exists bathrooms text not null default '';
+alter table public.quotes add column if not exists rooms text not null default '';
+alter table public.quotes add column if not exists current_condition text not null default '';
+alter table public.quotes add column if not exists frequency text not null default '';
+alter table public.quotes add column if not exists extras text not null default '';
+alter table public.quotes add column if not exists access_notes text not null default '';
+alter table public.quotes add column if not exists budget text not null default '';
 alter table public.quotes add column if not exists assigned_worker_name text;
 alter table public.quotes add column if not exists assigned_worker_code text;
 alter table public.quotes add column if not exists worker_pay text;

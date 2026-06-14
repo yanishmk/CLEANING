@@ -253,7 +253,11 @@ export default function Home() {
     setConfirmationEmailSent(null);
     setQuoteCopied(false);
 
-    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const formData = new FormData(event.currentTarget);
+    const data = {
+      ...Object.fromEntries(formData),
+      extras: formData.getAll('extras').map(String).filter(Boolean).join(', '),
+    };
     const res = await fetch('/api/quotes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -612,6 +616,13 @@ export default function Home() {
           </div>
         </div>
         <form className="quote-form" onSubmit={submitEstimate}>
+          <div className="quote-form-intro full">
+            <span>1</span>
+            <div>
+              <strong>Coordonnees</strong>
+              <p>On confirme le dossier et on vous repond sous 24h.</p>
+            </div>
+          </div>
           <label>
             Nom
             <input name="name" required placeholder="Marie Dupont" />
@@ -651,6 +662,84 @@ export default function Home() {
           <label>
             Heure souhaitée
             <input name="preferredTime" type="time" />
+          </label>
+          <div className="quote-form-intro full">
+            <span>2</span>
+            <div>
+              <strong>Details pour une estimation juste</strong>
+              <p>Ces infos evitent les prix approximatifs et les allers-retours inutiles.</p>
+            </div>
+          </div>
+          <label>
+            Type de lieu
+            <select name="propertyType" defaultValue="">
+              <option value="">A confirmer</option>
+              <option>Appartement</option>
+              <option>Condo</option>
+              <option>Maison</option>
+              <option>Bureau</option>
+              <option>Commerce</option>
+            </select>
+          </label>
+          <label>
+            Superficie approx.
+            <select name="spaceSize" defaultValue="">
+              <option value="">A confirmer</option>
+              <option>Moins de 800 pi2</option>
+              <option>800-1500 pi2</option>
+              <option>1500-2500 pi2</option>
+              <option>2500 pi2 et plus</option>
+            </select>
+          </label>
+          <label>
+            Etat actuel
+            <select name="currentCondition" defaultValue="">
+              <option value="">A confirmer</option>
+              <option>Leger</option>
+              <option>Normal</option>
+              <option>Tres sale</option>
+              <option>Apres renovation</option>
+              <option>Apres demenagement</option>
+            </select>
+          </label>
+          <label>
+            Frequence souhaitee
+            <select name="frequency" defaultValue="">
+              <option value="">A confirmer</option>
+              <option>Une fois</option>
+              <option>Chaque semaine</option>
+              <option>Aux 2 semaines</option>
+              <option>Chaque mois</option>
+            </select>
+          </label>
+          <label>
+            Chambres
+            <input name="bedrooms" inputMode="numeric" placeholder="Ex: 3" />
+          </label>
+          <label>
+            Salles de bain
+            <input name="bathrooms" inputMode="numeric" placeholder="Ex: 2" />
+          </label>
+          <label>
+            Pieces au total
+            <input name="rooms" inputMode="numeric" placeholder="Ex: 7" />
+          </label>
+          <label>
+            Budget approx. optionnel
+            <input name="budget" placeholder="Ex: 150 $" />
+          </label>
+          <fieldset className="quote-options full">
+            <legend>Options speciales</legend>
+            {['Four', 'Frigo', 'Vitres interieures', 'Armoires', 'Tapis', 'Murs', 'Animaux sur place'].map((option) => (
+              <label key={option}>
+                <input name="extras" type="checkbox" value={option} />
+                <span>{option}</span>
+              </label>
+            ))}
+          </fieldset>
+          <label className="full">
+            Acces / stationnement
+            <input name="accessNotes" placeholder="Code, etage, ascenseur, animaux..." />
           </label>
           <label className="full">
             Détails

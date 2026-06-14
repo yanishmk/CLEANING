@@ -21,6 +21,16 @@ type PortalQuote = {
   message: string;
   preferredDate?: string;
   preferredTime?: string;
+  propertyType?: string;
+  spaceSize?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  rooms?: string;
+  currentCondition?: string;
+  frequency?: string;
+  extras?: string;
+  accessNotes?: string;
+  budget?: string;
   estimate?: string;
   nextVisit?: string;
 };
@@ -249,6 +259,41 @@ function ClientPortalContent() {
               <strong>{activeQuote.estimate ?? 'En préparation'}</strong>
               <p>{activeQuote.nextVisit ? `Prochaine visite: ${activeQuote.nextVisit}` : 'Nous vous répondons sous 24h.'}</p>
             </article>
+          </section>
+
+          <section className="estimate-brief client-estimate-brief">
+            <div>
+              <span>Type</span>
+              <strong>{activeQuote.propertyType || activeQuote.service}</strong>
+            </div>
+            <div>
+              <span>Surface</span>
+              <strong>{activeQuote.spaceSize || 'A confirmer'}</strong>
+            </div>
+            <div>
+              <span>Etat</span>
+              <strong>{activeQuote.currentCondition || 'A confirmer'}</strong>
+            </div>
+            <div>
+              <span>Frequence</span>
+              <strong>{activeQuote.frequency || 'A confirmer'}</strong>
+            </div>
+            <div>
+              <span>Pieces</span>
+              <strong>
+                {[
+                  activeQuote.bedrooms && `${activeQuote.bedrooms} ch.`,
+                  activeQuote.bathrooms && `${activeQuote.bathrooms} sdb`,
+                  activeQuote.rooms && `${activeQuote.rooms} pieces`,
+                ]
+                  .filter(Boolean)
+                  .join(' / ') || 'A confirmer'}
+              </strong>
+            </div>
+            <div>
+              <span>Options</span>
+              <strong>{activeQuote.extras || 'Aucune option'}</strong>
+            </div>
           </section>
 
           {activeQuote.estimate && activeQuote.status === 'quoted' && (

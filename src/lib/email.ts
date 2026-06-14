@@ -48,6 +48,18 @@ export async function sendQuoteConfirmation(quote: QuoteSubmission): Promise<Ema
             <li><strong>Ville:</strong> ${quote.city}</li>
             <li><strong>Date souhaitee:</strong> ${quote.preferredDate || 'A confirmer'}</li>
             <li><strong>Heure souhaitee:</strong> ${quote.preferredTime || 'A confirmer'}</li>
+            <li><strong>Type de lieu:</strong> ${quote.propertyType || 'A confirmer'}</li>
+            <li><strong>Superficie:</strong> ${quote.spaceSize || 'A confirmer'}</li>
+            <li><strong>Etat actuel:</strong> ${quote.currentCondition || 'A confirmer'}</li>
+            <li><strong>Frequence:</strong> ${quote.frequency || 'A confirmer'}</li>
+            <li><strong>Pieces:</strong> ${[
+              quote.bedrooms && `${quote.bedrooms} chambres`,
+              quote.bathrooms && `${quote.bathrooms} salles de bain`,
+              quote.rooms && `${quote.rooms} pieces`,
+            ].filter(Boolean).join(' / ') || 'A confirmer'}</li>
+            <li><strong>Options:</strong> ${quote.extras || 'Aucune option'}</li>
+            <li><strong>Budget approx.:</strong> ${quote.budget || 'Non indique'}</li>
+            <li><strong>Acces:</strong> ${quote.accessNotes || 'A confirmer'}</li>
             <li><strong>Téléphone:</strong> ${quote.phone}</li>
           </ul>
           <p>Pour suivre votre dossier, ouvrez le portail client et utilisez votre numéro de soumission avec votre courriel.</p>
@@ -66,6 +78,18 @@ export async function sendQuoteConfirmation(quote: QuoteSubmission): Promise<Ema
         `Ville: ${quote.city}`,
         `Date souhaitee: ${quote.preferredDate || 'A confirmer'}`,
         `Heure souhaitee: ${quote.preferredTime || 'A confirmer'}`,
+        `Type de lieu: ${quote.propertyType || 'A confirmer'}`,
+        `Superficie: ${quote.spaceSize || 'A confirmer'}`,
+        `Etat actuel: ${quote.currentCondition || 'A confirmer'}`,
+        `Frequence: ${quote.frequency || 'A confirmer'}`,
+        `Pieces: ${[
+          quote.bedrooms && `${quote.bedrooms} chambres`,
+          quote.bathrooms && `${quote.bathrooms} salles de bain`,
+          quote.rooms && `${quote.rooms} pieces`,
+        ].filter(Boolean).join(' / ') || 'A confirmer'}`,
+        `Options: ${quote.extras || 'Aucune option'}`,
+        `Budget approx.: ${quote.budget || 'Non indique'}`,
+        `Acces: ${quote.accessNotes || 'A confirmer'}`,
         `Téléphone: ${quote.phone}`,
         '',
         'Nous vous répondrons sous 24h.',
