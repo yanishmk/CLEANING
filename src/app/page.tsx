@@ -444,7 +444,7 @@ export default function Home() {
               <div className="compare-module">
                 <div className="compare-frame">
                   <Image
-                    src="/follow/kitchen-before-real-v3.png"
+                    src="/follow/kitchen-before-real-v4.png"
                     alt=""
                     fill
                     unoptimized
@@ -452,7 +452,7 @@ export default function Home() {
                   />
                   <div className="compare-after" style={{ width: `${compareValue}%` }}>
                     <Image
-                      src="/follow/kitchen-after-real-v3.png"
+                      src="/follow/kitchen-after-real-v4.png"
                       alt=""
                       fill
                       unoptimized

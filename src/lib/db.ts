@@ -140,8 +140,8 @@ const demoDb: CleaningDb = {
       status: 'sent',
       checklist: ['Cuisine terminee', 'Salle de bain terminee', 'Sols laves'],
       notes: 'Intervention completee. Photos avant/apres disponibles dans le portail.',
-      beforeImage: '/follow/kitchen-before-real-v3.png',
-      afterImage: '/follow/kitchen-after-real-v3.png',
+      beforeImage: '/follow/kitchen-before-real-v4.png',
+      afterImage: '/follow/kitchen-after-real-v4.png',
     },
   ],
   workers: [
