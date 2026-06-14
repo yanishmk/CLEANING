@@ -22,7 +22,7 @@ create table if not exists public.quotes (
   frequency text not null default '',
   extras text not null default '',
   access_notes text not null default '',
-  budget text not null default '',
+  room_photos jsonb not null default '[]'::jsonb,
   estimate text,
   next_visit text,
   assigned_worker_name text,
@@ -45,7 +45,8 @@ alter table public.quotes add column if not exists current_condition text not nu
 alter table public.quotes add column if not exists frequency text not null default '';
 alter table public.quotes add column if not exists extras text not null default '';
 alter table public.quotes add column if not exists access_notes text not null default '';
-alter table public.quotes add column if not exists budget text not null default '';
+alter table public.quotes add column if not exists room_photos jsonb not null default '[]'::jsonb;
+alter table public.quotes drop column if exists budget;
 alter table public.quotes add column if not exists assigned_worker_name text;
 alter table public.quotes add column if not exists assigned_worker_code text;
 alter table public.quotes add column if not exists worker_pay text;

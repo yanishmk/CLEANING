@@ -30,7 +30,7 @@ type PortalQuote = {
   frequency?: string;
   extras?: string;
   accessNotes?: string;
-  budget?: string;
+  roomPhotos?: string[];
   estimate?: string;
   nextVisit?: string;
 };
@@ -295,6 +295,17 @@ function ClientPortalContent() {
               <strong>{activeQuote.extras || 'Aucune option'}</strong>
             </div>
           </section>
+
+          {activeQuote.roomPhotos && activeQuote.roomPhotos.length > 0 && (
+            <section className="room-photo-strip client-room-photo-strip">
+              <span>Photos transmises</span>
+              <div>
+                {activeQuote.roomPhotos.map((photo, index) => (
+                  <Image alt="" height={130} key={`${activeQuote.id}-room-${index}`} src={photo} unoptimized width={190} />
+                ))}
+              </div>
+            </section>
+          )}
 
           {activeQuote.estimate && activeQuote.status === 'quoted' && (
             <article className="client-action-card">

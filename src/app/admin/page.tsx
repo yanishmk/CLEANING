@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { type CSSProperties, FormEvent, useMemo, useState } from 'react';
 
@@ -28,7 +29,7 @@ type Quote = {
   frequency?: string;
   extras?: string;
   accessNotes?: string;
-  budget?: string;
+  roomPhotos?: string[];
   estimate?: string;
   nextVisit?: string;
   assignedWorkerName?: string;
@@ -500,14 +501,21 @@ export default function AdminPage() {
                     <strong>{selectedQuote.extras || 'Aucune option'}</strong>
                   </div>
                   <div>
-                    <span>Budget</span>
-                    <strong>{selectedQuote.budget || 'Non indique'}</strong>
-                  </div>
-                  <div>
                     <span>Acces</span>
                     <strong>{selectedQuote.accessNotes || 'A confirmer'}</strong>
                   </div>
                 </article>
+
+                {selectedQuote.roomPhotos && selectedQuote.roomPhotos.length > 0 && (
+                  <article className="room-photo-strip">
+                    <span>Photos client</span>
+                    <div>
+                      {selectedQuote.roomPhotos.map((photo, index) => (
+                        <Image alt="" height={130} key={`${selectedQuote.id}-room-${index}`} src={photo} unoptimized width={190} />
+                      ))}
+                    </div>
+                  </article>
+                )}
 
                 <details className="manager-note collapsible-panel">
                   <summary>

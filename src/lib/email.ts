@@ -58,8 +58,8 @@ export async function sendQuoteConfirmation(quote: QuoteSubmission): Promise<Ema
               quote.rooms && `${quote.rooms} pieces`,
             ].filter(Boolean).join(' / ') || 'A confirmer'}</li>
             <li><strong>Options:</strong> ${quote.extras || 'Aucune option'}</li>
-            <li><strong>Budget approx.:</strong> ${quote.budget || 'Non indique'}</li>
             <li><strong>Acces:</strong> ${quote.accessNotes || 'A confirmer'}</li>
+            <li><strong>Photos des pieces:</strong> ${quote.roomPhotos?.length ? `${quote.roomPhotos.length} photo(s) recue(s)` : 'Aucune photo'}</li>
             <li><strong>Téléphone:</strong> ${quote.phone}</li>
           </ul>
           <p>Pour suivre votre dossier, ouvrez le portail client et utilisez votre numéro de soumission avec votre courriel.</p>
@@ -88,8 +88,8 @@ export async function sendQuoteConfirmation(quote: QuoteSubmission): Promise<Ema
           quote.rooms && `${quote.rooms} pieces`,
         ].filter(Boolean).join(' / ') || 'A confirmer'}`,
         `Options: ${quote.extras || 'Aucune option'}`,
-        `Budget approx.: ${quote.budget || 'Non indique'}`,
         `Acces: ${quote.accessNotes || 'A confirmer'}`,
+        `Photos des pieces: ${quote.roomPhotos?.length ? `${quote.roomPhotos.length} photo(s) recue(s)` : 'Aucune photo'}`,
         `Téléphone: ${quote.phone}`,
         '',
         'Nous vous répondrons sous 24h.',

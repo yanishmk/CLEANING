@@ -26,7 +26,7 @@ export type QuoteSubmission = {
   frequency?: string;
   extras?: string;
   accessNotes?: string;
-  budget?: string;
+  roomPhotos?: string[];
   estimate?: string;
   nextVisit?: string;
   assignedWorkerName?: string;
@@ -94,7 +94,7 @@ type SupabaseQuoteRow = {
   frequency?: string | null;
   extras?: string | null;
   access_notes?: string | null;
-  budget?: string | null;
+  room_photos?: string[] | null;
   estimate?: string | null;
   next_visit?: string | null;
   assigned_worker_name?: string | null;
@@ -153,7 +153,7 @@ const demoDb: CleaningDb = {
       frequency: 'Aux 2 semaines',
       extras: 'Four, Vitres interieures',
       accessNotes: 'Stationnement dans l entree.',
-      budget: '150 $',
+      roomPhotos: [],
       estimate: '145 $ / visite',
       nextVisit: '2026-06-13T09:00',
       assignedWorkerName: 'Samir',
@@ -281,7 +281,7 @@ function toQuote(row: SupabaseQuoteRow): QuoteSubmission {
     frequency: row.frequency ?? undefined,
     extras: row.extras ?? undefined,
     accessNotes: row.access_notes ?? undefined,
-    budget: row.budget ?? undefined,
+    roomPhotos: row.room_photos ?? undefined,
     estimate: row.estimate ?? undefined,
     nextVisit: row.next_visit ?? undefined,
     assignedWorkerName: row.assigned_worker_name ?? undefined,
@@ -382,7 +382,7 @@ function quotePayload(quote: QuoteSubmission) {
     frequency: quote.frequency || null,
     extras: quote.extras || null,
     access_notes: quote.accessNotes || null,
-    budget: quote.budget || null,
+    room_photos: quote.roomPhotos ?? [],
   };
 }
 
@@ -522,7 +522,7 @@ export async function createQuote(input: Record<string, unknown>) {
     frequency: normalize(input.frequency),
     extras: Array.isArray(input.extras) ? input.extras.map(normalize).filter(Boolean).join(', ') : normalize(input.extras),
     accessNotes: normalize(input.accessNotes),
-    budget: normalize(input.budget),
+    roomPhotos: Array.isArray(input.roomPhotos) ? input.roomPhotos.map(normalize).filter(Boolean).slice(0, 4) : [],
     message: normalize(input.message),
   };
 

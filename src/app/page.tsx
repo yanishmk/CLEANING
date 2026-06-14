@@ -218,6 +218,16 @@ const areas = ['Ottawa', 'Gatineau', 'Kanata', 'Barrhaven', 'Nepean', 'Orleans',
 const contactPhoneDisplay = '514 570 4038';
 const contactPhoneHref = '+15145704038';
 const whatsappHref = 'https://wa.me/15145704038';
+const quoteSteps = ['Contact', 'Lieu', 'Estimation', 'Photos'] as const;
+
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function Home() {
   const { lang, toggle } = useLang();
@@ -243,20 +253,36 @@ export default function Home() {
   const [quoteReference, setQuoteReference] = useState('');
   const [confirmationEmailSent, setConfirmationEmailSent] = useState<boolean | null>(null);
   const [quoteCopied, setQuoteCopied] = useState(false);
+  const [quoteStep, setQuoteStep] = useState(0);
   const c = copy[lang];
 
   async function submitEstimate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const required = ['name', 'email', 'phone', 'address', 'service', 'city'];
+    const missing = required.find((field) => !String(formData.get(field) ?? '').trim());
+
+    if (missing) {
+      setQuoteStep(['name', 'email', 'phone'].includes(missing) ? 0 : 1);
+      setSent(false);
+      return;
+    }
+
     setLoading(true);
     setSent(false);
     setQuoteReference('');
     setConfirmationEmailSent(null);
     setQuoteCopied(false);
 
-    const formData = new FormData(event.currentTarget);
+    const roomPhotoFiles = formData
+      .getAll('roomPhotos')
+      .filter((file): file is File => file instanceof File && file.size > 0)
+      .slice(0, 4);
+    const roomPhotos = await Promise.all(roomPhotoFiles.map(fileToDataUrl));
     const data = {
       ...Object.fromEntries(formData),
       extras: formData.getAll('extras').map(String).filter(Boolean).join(', '),
+      roomPhotos,
     };
     const res = await fetch('/api/quotes', {
       method: 'POST',
@@ -269,9 +295,18 @@ export default function Home() {
       setQuoteReference(result.quote.id);
       setConfirmationEmailSent(Boolean(result.email?.sent));
       setSent(true);
+      setQuoteStep(0);
       event.currentTarget.reset();
     }
     setLoading(false);
+  }
+
+  function nextQuoteStep() {
+    setQuoteStep((current) => Math.min(current + 1, quoteSteps.length - 1));
+  }
+
+  function previousQuoteStep() {
+    setQuoteStep((current) => Math.max(current - 1, 0));
   }
 
   async function copyQuoteReference() {
@@ -615,7 +650,16 @@ export default function Home() {
             <a href="mailto:info@cleaningsol.ca">info@cleaningsol.ca</a>
           </div>
         </div>
-        <form className="quote-form" onSubmit={submitEstimate}>
+        <form className="quote-form" onSubmit={submitEstimate} noValidate>
+          <div className="quote-stepper full" aria-label="Etapes du questionnaire">
+            {quoteSteps.map((step, index) => (
+              <span className={index <= quoteStep ? 'active' : ''} key={step}>
+                <span>{index + 1}</span>
+                {step}
+              </span>
+            ))}
+          </div>
+          <fieldset className={`quote-step ${quoteStep === 0 ? 'active' : ''}`}>
           <div className="quote-form-intro full">
             <span>1</span>
             <div>
@@ -635,6 +679,15 @@ export default function Home() {
             Téléphone
             <input name="phone" type="tel" required placeholder={contactPhoneDisplay} />
           </label>
+          </fieldset>
+          <fieldset className={`quote-step ${quoteStep === 1 ? 'active' : ''}`}>
+          <div className="quote-form-intro full">
+            <span>2</span>
+            <div>
+              <strong>Lieu et moment souhaite</strong>
+              <p>On garde votre date par defaut, sauf si on doit l&apos;ajuster avec vous.</p>
+            </div>
+          </div>
           <label className="full">
             Adresse complète
             <input name="address" required placeholder="123 rue Principale, app. 4" />
@@ -663,8 +716,10 @@ export default function Home() {
             Heure souhaitée
             <input name="preferredTime" type="time" />
           </label>
+          </fieldset>
+          <fieldset className={`quote-step ${quoteStep === 2 ? 'active' : ''}`}>
           <div className="quote-form-intro full">
-            <span>2</span>
+            <span>3</span>
             <div>
               <strong>Details pour une estimation juste</strong>
               <p>Ces infos evitent les prix approximatifs et les allers-retours inutiles.</p>
@@ -724,10 +779,6 @@ export default function Home() {
             Pieces au total
             <input name="rooms" inputMode="numeric" placeholder="Ex: 7" />
           </label>
-          <label>
-            Budget approx. optionnel
-            <input name="budget" placeholder="Ex: 150 $" />
-          </label>
           <fieldset className="quote-options full">
             <legend>Options speciales</legend>
             {['Four', 'Frigo', 'Vitres interieures', 'Armoires', 'Tapis', 'Murs', 'Animaux sur place'].map((option) => (
@@ -737,6 +788,19 @@ export default function Home() {
               </label>
             ))}
           </fieldset>
+          </fieldset>
+          <fieldset className={`quote-step ${quoteStep === 3 ? 'active' : ''}`}>
+          <div className="quote-form-intro full">
+            <span>4</span>
+            <div>
+              <strong>Photos et priorites</strong>
+              <p>Ajoutez quelques photos des pieces pour rendre l&apos;estimation plus fiable.</p>
+            </div>
+          </div>
+          <label className="full">
+            Photos des pieces
+            <input name="roomPhotos" type="file" accept="image/*" multiple />
+          </label>
           <label className="full">
             Acces / stationnement
             <input name="accessNotes" placeholder="Code, etage, ascenseur, animaux..." />
@@ -745,9 +809,21 @@ export default function Home() {
             Détails
             <textarea name="message" rows={5} placeholder="Surface, fréquence, date souhaitée..." />
           </label>
-          <button className="button full" type="submit" disabled={loading}>
-            {loading ? c.sending : c.submit}
-          </button>
+          </fieldset>
+          <div className="quote-form-actions full">
+            <button className="button button-secondary" type="button" onClick={previousQuoteStep} disabled={quoteStep === 0 || loading}>
+              Precedent
+            </button>
+            {quoteStep < quoteSteps.length - 1 ? (
+              <button className="button" type="button" onClick={nextQuoteStep} disabled={loading}>
+                Suivant
+              </button>
+            ) : (
+              <button className="button" type="submit" disabled={loading}>
+                {loading ? c.sending : c.submit}
+              </button>
+            )}
+          </div>
           {sent && (
             <div className="form-status quote-confirmation">
               <span className="confirmation-kicker">Numéro de soumission</span>
