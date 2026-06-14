@@ -318,8 +318,24 @@ export default function Home() {
       .slice(0, 4);
     const roomPhotos = await Promise.all(roomPhotoFiles.map(imageFileToSmallDataUrl));
     const data = {
-      ...Object.fromEntries(formData),
+      name: String(formData.get('name') ?? ''),
+      email: String(formData.get('email') ?? ''),
+      phone: String(formData.get('phone') ?? ''),
+      address: String(formData.get('address') ?? ''),
+      service: String(formData.get('service') ?? ''),
+      city: String(formData.get('city') ?? ''),
+      preferredDate: String(formData.get('preferredDate') ?? ''),
+      preferredTime: String(formData.get('preferredTime') ?? ''),
+      propertyType: String(formData.get('propertyType') ?? ''),
+      spaceSize: String(formData.get('spaceSize') ?? ''),
+      currentCondition: String(formData.get('currentCondition') ?? ''),
+      frequency: String(formData.get('frequency') ?? ''),
+      bedrooms: String(formData.get('bedrooms') ?? ''),
+      bathrooms: String(formData.get('bathrooms') ?? ''),
+      rooms: String(formData.get('rooms') ?? ''),
       extras: formData.getAll('extras').map(String).filter(Boolean).join(', '),
+      accessNotes: String(formData.get('accessNotes') ?? ''),
+      message: String(formData.get('message') ?? ''),
       roomPhotos,
     };
 
@@ -327,6 +343,7 @@ export default function Home() {
       const res = await fetch('/api/quotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify(data),
       });
       const result = await res.json().catch(() => null);
@@ -342,8 +359,9 @@ export default function Home() {
       setSent(true);
       setQuoteStep(0);
       event.currentTarget.reset();
-    } catch {
-      setFormError('Impossible d envoyer la demande. Verifiez votre connexion ou envoyez-nous un message WhatsApp.');
+    } catch (error) {
+      const detail = error instanceof Error ? ` (${error.message})` : '';
+      setFormError(`Impossible d envoyer la demande. Verifiez votre connexion ou envoyez-nous un message WhatsApp.${detail}`);
     }
 
     setLoading(false);
