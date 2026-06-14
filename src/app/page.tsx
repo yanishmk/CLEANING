@@ -229,6 +229,41 @@ function fileToDataUrl(file: File) {
   });
 }
 
+async function imageFileToSmallDataUrl(file: File) {
+  if (!file.type.startsWith('image/')) return fileToDataUrl(file);
+
+  return new Promise<string>((resolve) => {
+    const url = URL.createObjectURL(file);
+    const image = new window.Image();
+
+    image.onload = () => {
+      const maxSize = 1200;
+      const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext('2d');
+
+      if (!context) {
+        URL.revokeObjectURL(url);
+        fileToDataUrl(file).then(resolve);
+        return;
+      }
+
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.74));
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      fileToDataUrl(file).then(resolve);
+    };
+
+    image.src = url;
+  });
+}
+
 export default function Home() {
   const { lang, toggle } = useLang();
   const [sent, setSent] = useState(false);
@@ -254,6 +289,7 @@ export default function Home() {
   const [confirmationEmailSent, setConfirmationEmailSent] = useState<boolean | null>(null);
   const [quoteCopied, setQuoteCopied] = useState(false);
   const [quoteStep, setQuoteStep] = useState(0);
+  const [formError, setFormError] = useState('');
   const c = copy[lang];
 
   async function submitEstimate(event: FormEvent<HTMLFormElement>) {
@@ -265,11 +301,13 @@ export default function Home() {
     if (missing) {
       setQuoteStep(['name', 'email', 'phone'].includes(missing) ? 0 : 1);
       setSent(false);
+      setFormError('Completez les champs obligatoires avant d envoyer la demande.');
       return;
     }
 
     setLoading(true);
     setSent(false);
+    setFormError('');
     setQuoteReference('');
     setConfirmationEmailSent(null);
     setQuoteCopied(false);
@@ -278,34 +316,46 @@ export default function Home() {
       .getAll('roomPhotos')
       .filter((file): file is File => file instanceof File && file.size > 0)
       .slice(0, 4);
-    const roomPhotos = await Promise.all(roomPhotoFiles.map(fileToDataUrl));
+    const roomPhotos = await Promise.all(roomPhotoFiles.map(imageFileToSmallDataUrl));
     const data = {
       ...Object.fromEntries(formData),
       extras: formData.getAll('extras').map(String).filter(Boolean).join(', '),
       roomPhotos,
     };
-    const res = await fetch('/api/quotes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
 
-    if (res.ok) {
+    try {
+      const res = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json().catch(() => null);
+
+      if (!res.ok || !result?.quote?.id) {
+        setFormError(result?.message ?? 'Impossible d envoyer la demande. Reessayez ou contactez-nous sur WhatsApp.');
+        setLoading(false);
+        return;
+      }
+
       setQuoteReference(result.quote.id);
       setConfirmationEmailSent(Boolean(result.email?.sent));
       setSent(true);
       setQuoteStep(0);
       event.currentTarget.reset();
+    } catch {
+      setFormError('Impossible d envoyer la demande. Verifiez votre connexion ou envoyez-nous un message WhatsApp.');
     }
+
     setLoading(false);
   }
 
   function nextQuoteStep() {
+    setFormError('');
     setQuoteStep((current) => Math.min(current + 1, quoteSteps.length - 1));
   }
 
   function previousQuoteStep() {
+    setFormError('');
     setQuoteStep((current) => Math.max(current - 1, 0));
   }
 
@@ -813,6 +863,7 @@ export default function Home() {
             <textarea name="message" rows={5} placeholder="Surface, fréquence, date souhaitée..." />
           </label>
           </fieldset>
+          {formError && <p className="form-status error">{formError}</p>}
           <div className="quote-form-actions full">
             <button className="button button-secondary" type="button" onClick={previousQuoteStep} disabled={quoteStep === 0 || loading}>
               Precedent
