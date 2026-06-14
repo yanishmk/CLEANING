@@ -294,7 +294,8 @@ export default function Home() {
 
   async function submitEstimate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const required = ['name', 'email', 'phone', 'address', 'service', 'city'];
     const missing = required.find((field) => !String(formData.get(field) ?? '').trim());
 
@@ -358,7 +359,7 @@ export default function Home() {
       setConfirmationEmailSent(Boolean(result.email?.sent));
       setSent(true);
       setQuoteStep(0);
-      event.currentTarget.reset();
+      form.reset();
     } catch (error) {
       const detail = error instanceof Error ? ` (${error.message})` : '';
       setFormError(`Impossible d envoyer la demande. Verifiez votre connexion ou envoyez-nous un message WhatsApp.${detail}`);
