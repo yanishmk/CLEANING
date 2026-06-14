@@ -305,7 +305,10 @@ export default function AdminPage() {
     <main className="admin-page manager-page">
       <div className="manager-topbar">
         <Link className="brand" href="/">
-          <span className="brand-mark">CS</span>
+          <span className="brand-mark" aria-hidden="true">
+            <span className="brand-sun" />
+            <span className="brand-shine" />
+          </span>
           <span>Cleaning Sol Manager</span>
         </Link>
         <div className="manager-nav-actions">

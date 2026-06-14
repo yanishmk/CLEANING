@@ -102,7 +102,10 @@ export default function WorkerPage() {
     <main className="portal-page worker-page">
       <div className="manager-topbar">
         <Link className="brand" href="/">
-          <span className="brand-mark">CS</span>
+          <span className="brand-mark" aria-hidden="true">
+            <span className="brand-sun" />
+            <span className="brand-shine" />
+          </span>
           <span>Cleaning Sol Intervenant</span>
         </Link>
         <Link className="button button-secondary button-small" href="/admin">
@@ -202,11 +205,11 @@ export default function WorkerPage() {
               </label>
               <label>
                 Photo avant
-                <input name="beforeImage" type="file" accept="image/*" />
+                <input name="beforeImage" type="file" accept="image/*" capture="environment" />
               </label>
               <label>
                 Photo après
-                <input name="afterImage" type="file" accept="image/*" />
+                <input name="afterImage" type="file" accept="image/*" capture="environment" />
               </label>
               <button className="button" type="submit" disabled={saving}>
                 {saving ? 'Envoi...' : 'Envoyer le rapport'}

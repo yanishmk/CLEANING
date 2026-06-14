@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     'ménage résidentiel',
     'nettoyage commercial',
   ],
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -158,7 +158,10 @@ function ClientPortalContent() {
     <main className="portal-page client-page">
       <div className="manager-topbar">
         <Link className="brand" href="/">
-          <span className="brand-mark">CS</span>
+          <span className="brand-mark" aria-hidden="true">
+            <span className="brand-sun" />
+            <span className="brand-shine" />
+          </span>
           <span>Cleaning Sol</span>
         </Link>
         <a className="button button-secondary button-small" href="https://wa.me/15145704038" target="_blank" rel="noreferrer">

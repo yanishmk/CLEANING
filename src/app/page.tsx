@@ -344,7 +344,10 @@ export default function Home() {
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Cleaning Sol">
-          <span className="brand-mark">CS</span>
+          <span className="brand-mark" aria-hidden="true">
+            <span className="brand-sun" />
+            <span className="brand-shine" />
+          </span>
           <span>Cleaning Sol</span>
         </a>
         <nav aria-label="Navigation principale">
@@ -355,8 +358,8 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
-          <button type="button" className="lang-button" onClick={toggle}>
-            {lang === 'fr' ? 'EN' : 'FR'}
+          <button type="button" className="lang-button" onClick={toggle} aria-label="Changer la langue">
+            {lang === 'fr' ? 'English' : 'Français'}
           </button>
           <Link className="button button-secondary button-small" href="/portail">
             Portail
@@ -798,8 +801,8 @@ export default function Home() {
             </div>
           </div>
           <label className="full">
-            Photos des pieces
-            <input name="roomPhotos" type="file" accept="image/*" multiple />
+            Prendre ou charger des photos
+            <input name="roomPhotos" type="file" accept="image/*" capture="environment" multiple />
           </label>
           <label className="full">
             Acces / stationnement
