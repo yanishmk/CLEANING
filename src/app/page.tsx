@@ -287,6 +287,7 @@ export default function Home() {
   const [portalMessage, setPortalMessage] = useState('');
   const [quoteReference, setQuoteReference] = useState('');
   const [confirmationEmailSent, setConfirmationEmailSent] = useState<boolean | null>(null);
+  const [confirmationEmailReason, setConfirmationEmailReason] = useState('');
   const [quoteCopied, setQuoteCopied] = useState(false);
   const [quoteStep, setQuoteStep] = useState(0);
   const [formError, setFormError] = useState('');
@@ -311,6 +312,7 @@ export default function Home() {
     setFormError('');
     setQuoteReference('');
     setConfirmationEmailSent(null);
+    setConfirmationEmailReason('');
     setQuoteCopied(false);
 
     const roomPhotoFiles = formData
@@ -357,6 +359,7 @@ export default function Home() {
 
       setQuoteReference(result.quote.id);
       setConfirmationEmailSent(Boolean(result.email?.sent));
+      setConfirmationEmailReason(result.email?.sent ? '' : String(result.email?.reason ?? 'Email non envoye.'));
       setSent(true);
       setQuoteStep(0);
       form.reset();
@@ -866,12 +869,16 @@ export default function Home() {
             <span>4</span>
             <div>
               <strong>Photos et priorites</strong>
-              <p>Ajoutez quelques photos des pieces pour rendre l&apos;estimation plus fiable.</p>
+              <p>Photos optionnelles. Vous pouvez envoyer la demande sans photo.</p>
             </div>
           </div>
           <label className="full">
-            Prendre ou charger des photos
-            <input name="roomPhotos" type="file" accept="image/*" capture="environment" multiple />
+            Prendre une photo
+            <input name="roomPhotos" type="file" accept="image/*" capture="environment" />
+          </label>
+          <label className="full">
+            Charger depuis la galerie
+            <input name="roomPhotos" type="file" accept="image/*" multiple />
           </label>
           <label className="full">
             Acces / stationnement
@@ -905,7 +912,7 @@ export default function Home() {
               <span className="email-status">
                 {confirmationEmailSent
                   ? 'Un courriel de confirmation avec ce numéro vient aussi de vous être envoyé.'
-                  : 'Copiez ce numéro maintenant. Le courriel automatique sera envoyé quand RESEND_API_KEY sera configuré.'}
+                  : `Le dossier est cree, mais le courriel n est pas parti: ${confirmationEmailReason || 'configuration email a verifier'}.`}
               </span>
               <div className="confirmation-actions">
                 <button className="button button-small" type="button" onClick={copyQuoteReference}>
