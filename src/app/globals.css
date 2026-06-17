@@ -2156,6 +2156,73 @@ h3 {
   padding: 16px;
 }
 
+.notification-feed {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.notification-feed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.notification-feed-head strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--teal-dark);
+}
+
+.notification-item {
+  display: grid;
+  gap: 4px;
+  border-left: 4px solid rgba(15, 118, 110, 0.24);
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 12px 14px;
+}
+
+.notification-item span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.notification-item strong {
+  color: var(--ink);
+}
+
+.notification-item p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.notification-item.tone-success {
+  border-left-color: #22c55e;
+}
+
+.notification-item.tone-warning {
+  border-left-color: #f59e0b;
+}
+
+.client-notification-feed {
+  background: rgba(255, 255, 255, 0.88);
+}
+
 .detail-grid article:nth-child(2) {
   animation-delay: 45ms;
 }

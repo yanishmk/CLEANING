@@ -1,4 +1,4 @@
-import { deleteQuote, listQuotes, updateQuote } from '@/lib/db';
+import { deleteQuote, listNotifications, listQuotes, updateQuote } from '@/lib/db';
 import { sendQuoteEstimate } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +33,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const shouldSendEstimateEmail = Boolean(nextEstimate) && nextEstimate !== previousEstimate;
   const email = shouldSendEstimateEmail ? await sendQuoteEstimate(quote) : null;
 
-  return Response.json({ ok: true, quote, email });
+  const notifications = await listNotifications(30);
+  return Response.json({ ok: true, quote, email, notifications });
 }
 
 export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {

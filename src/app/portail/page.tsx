@@ -45,10 +45,21 @@ type PortalReport = {
   afterImage?: string;
 };
 
+type PortalNotification = {
+  id: string;
+  quoteId: string;
+  createdAt: string;
+  audience: 'admin' | 'client' | 'all';
+  title: string;
+  message: string;
+  tone: 'info' | 'success' | 'warning';
+};
+
 type PortalSession = {
   quotes: PortalQuote[];
   quote: PortalQuote;
   reports: PortalReport[];
+  notifications: PortalNotification[];
 };
 
 const steps: Array<{ key: string; label: string; icon: string; statuses: QuoteStatus[] }> = [
@@ -109,7 +120,7 @@ function ClientPortalContent() {
     if (!res.ok) {
       setMessage(data.message ?? 'Dossier introuvable.');
     } else {
-      setSession({ quotes: data.quotes ?? [data.quote], quote: data.quote, reports: data.reports });
+      setSession({ quotes: data.quotes ?? [data.quote], quote: data.quote, reports: data.reports, notifications: data.notifications ?? [] });
       setReference(data.quote.id);
     }
     setLoading(false);
@@ -147,6 +158,7 @@ function ClientPortalContent() {
           ...current,
           quote: nextQuote,
           quotes: current.quotes.map((quote) => (quote.id === nextQuote.id ? nextQuote : quote)),
+          notifications: data.notifications ?? current.notifications,
         };
       });
       setMessage('Soumission acceptée. Nous allons planifier le travail.');
@@ -240,6 +252,22 @@ function ClientPortalContent() {
               ))}
             </div>
           </article>
+
+          {session.notifications.length > 0 && (
+            <section className="notification-feed client-notification-feed">
+              <div className="notification-feed-head">
+                <span>Suivi du dossier</span>
+                <strong>{session.notifications.length}</strong>
+              </div>
+              {session.notifications.slice(0, 5).map((notification) => (
+                <div className={`notification-item tone-${notification.tone}`} key={notification.id}>
+                  <span>{new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
+                  <strong>{notification.title}</strong>
+                  <p>{notification.message}</p>
+                </div>
+              ))}
+            </section>
+          )}
 
           <section className="client-info-grid">
             <article>

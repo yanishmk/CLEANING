@@ -1,4 +1,4 @@
-import { acceptClientQuote } from '@/lib/db';
+import { acceptClientQuote, findClientPortal } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,5 +13,6 @@ export async function POST(request: Request) {
     );
   }
 
-  return Response.json({ ok: true, quote });
+  const record = await findClientPortal(body);
+  return Response.json({ ok: true, quote, notifications: record?.notifications ?? [] });
 }

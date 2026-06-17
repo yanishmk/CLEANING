@@ -1,4 +1,4 @@
-import { listQuotes } from '@/lib/db';
+import { listNotifications, listQuotes } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +11,6 @@ export async function GET(request: Request) {
     return Response.json({ ok: false, message: 'Accès refusé' }, { status: 401 });
   }
 
-  const quotes = await listQuotes();
-  return Response.json({ ok: true, quotes });
+  const [quotes, notifications] = await Promise.all([listQuotes(), listNotifications(30)]);
+  return Response.json({ ok: true, quotes, notifications });
 }

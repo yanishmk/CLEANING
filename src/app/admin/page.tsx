@@ -47,6 +47,16 @@ type Worker = {
   active: boolean;
 };
 
+type QuoteNotification = {
+  id: string;
+  quoteId: string;
+  createdAt: string;
+  audience: 'admin' | 'client' | 'all';
+  title: string;
+  message: string;
+  tone: 'info' | 'success' | 'warning';
+};
+
 type AdminTab = 'dossiers' | 'planning' | 'equipe';
 type DossierFilter = 'active' | 'history';
 
@@ -125,6 +135,7 @@ export default function AdminPage() {
   const [code, setCode] = useState('');
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [workers, setWorkers] = useState<Worker[]>([]);
+  const [notifications, setNotifications] = useState<QuoteNotification[]>([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState('');
@@ -147,6 +158,10 @@ export default function AdminPage() {
   const [creatingWorker, setCreatingWorker] = useState(false);
 
   const selectedQuote = quotes.find((quote) => quote.id === selectedId) ?? quotes[0];
+  const selectedNotifications = useMemo(() => {
+    if (!selectedQuote) return [];
+    return notifications.filter((notification) => notification.quoteId === selectedQuote.id).slice(0, 4);
+  }, [notifications, selectedQuote]);
 
   const filteredQuotes = useMemo(() => {
     const term = search.toLowerCase().trim();
@@ -234,9 +249,11 @@ export default function AdminPage() {
       setMessage(quotesData.message ?? 'Accès refusé');
       setQuotes([]);
       setWorkers([]);
+      setNotifications([]);
     } else {
       setQuotes(quotesData.quotes);
       setWorkers(workersRes.ok ? workersData.workers : []);
+      setNotifications(quotesData.notifications ?? []);
       const firstActive = quotesData.quotes.find((quote: Quote) => quote.status !== 'completed');
       if (firstActive ?? quotesData.quotes[0]) syncEditor(firstActive ?? quotesData.quotes[0]);
     }
@@ -308,6 +325,7 @@ export default function AdminPage() {
       } else {
         setMessage('Soumission mise à jour.');
       }
+      if (data.notifications) setNotifications(data.notifications);
     }
     setSaving(false);
   }
@@ -331,6 +349,7 @@ export default function AdminPage() {
       setQuotes((current) => current.map((quote) => (quote.id === data.quote.id ? data.quote : quote)));
       syncEditor(data.quote);
       setDossierFilter('history');
+      if (data.notifications) setNotifications(data.notifications);
       setShowQuoteActions(false);
       setMessage("Demande placée dans l'historique.");
     }
@@ -356,6 +375,7 @@ export default function AdminPage() {
       setMessage(data.message ?? 'Impossible de supprimer la demande.');
     } else {
       const remaining = quotes.filter((quote) => quote.id !== selectedQuote.id);
+      setNotifications((current) => current.filter((notification) => notification.quoteId !== selectedQuote.id));
       const next =
         remaining.find((quote) =>
           dossierFilter === 'active' ? quote.status !== 'completed' : quote.status === 'completed',
@@ -534,6 +554,22 @@ export default function AdminPage() {
                       <span>Téléphone</span>
                       <strong>{selectedQuote.phone}</strong>
                     </div>
+                  </article>
+                )}
+
+                {selectedNotifications.length > 0 && (
+                  <article className="notification-feed admin-notification-feed">
+                    <div className="notification-feed-head">
+                      <span>Activite recente</span>
+                      <strong>{selectedNotifications.length}</strong>
+                    </div>
+                    {selectedNotifications.map((notification) => (
+                      <div className={`notification-item tone-${notification.tone}`} key={notification.id}>
+                        <span>{new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
+                        <strong>{notification.title}</strong>
+                        <p>{notification.message}</p>
+                      </div>
+                    ))}
                   </article>
                 )}
 

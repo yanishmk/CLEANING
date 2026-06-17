@@ -56,6 +56,16 @@ export type Worker = {
   active: boolean;
 };
 
+export type QuoteNotification = {
+  id: string;
+  quoteId: string;
+  createdAt: string;
+  audience: 'admin' | 'client' | 'all';
+  title: string;
+  message: string;
+  tone: 'info' | 'success' | 'warning';
+};
+
 export type QuoteUpdate = {
   status?: QuoteStatus;
   estimate?: string;
@@ -69,6 +79,7 @@ type CleaningDb = {
   quotes: QuoteSubmission[];
   reports: ServiceReport[];
   workers: Worker[];
+  notifications: QuoteNotification[];
 };
 
 type SupabaseQuoteRow = {
@@ -122,6 +133,16 @@ type SupabaseWorkerRow = {
   email?: string | null;
   code: string;
   active: boolean;
+};
+
+type SupabaseNotificationRow = {
+  id: string;
+  quote_id: string;
+  created_at: string;
+  audience: 'admin' | 'client' | 'all';
+  title: string;
+  message: string;
+  tone: 'info' | 'success' | 'warning';
 };
 
 const dbPath = path.join(process.cwd(), 'data', 'cleaning-db.json');
@@ -185,13 +206,29 @@ const demoDb: CleaningDb = {
       active: true,
     },
   ],
+  notifications: [
+    {
+      id: 'NTF-2481',
+      quoteId: 'CS-2481',
+      createdAt: '2026-06-07T16:45:00.000Z',
+      audience: 'all',
+      title: 'Travail terminé',
+      message: 'Le rapport après intervention est disponible dans le portail.',
+      tone: 'success',
+    },
+  ],
 };
 
 async function readDb(): Promise<CleaningDb> {
   try {
     const raw = await readFile(dbPath, 'utf8');
     const db = JSON.parse(raw) as CleaningDb;
-    return { quotes: db.quotes ?? [], reports: db.reports ?? [], workers: db.workers ?? demoDb.workers };
+    return {
+      quotes: db.quotes ?? [],
+      reports: db.reports ?? [],
+      workers: db.workers ?? demoDb.workers,
+      notifications: db.notifications ?? [],
+    };
   } catch {
     await mkdir(path.dirname(dbPath), { recursive: true });
     await writeFile(dbPath, JSON.stringify(demoDb, null, 2), 'utf8');
@@ -230,6 +267,11 @@ function makeWorkerId(name: string) {
     .slice(0, 16);
   const segment = Math.random().toString(36).slice(2, 5).toUpperCase();
   return `WRK-${slug || 'TEAM'}-${segment}`;
+}
+
+function makeNotificationId() {
+  const segment = Math.random().toString(36).slice(2, 8).toUpperCase();
+  return `NTF-${segment}`;
 }
 
 function hasSupabase() {
@@ -316,6 +358,18 @@ function toWorker(row: SupabaseWorkerRow): Worker {
   };
 }
 
+function toNotification(row: SupabaseNotificationRow): QuoteNotification {
+  return {
+    id: row.id,
+    quoteId: row.quote_id,
+    createdAt: row.created_at,
+    audience: row.audience,
+    title: row.title,
+    message: row.message,
+    tone: row.tone,
+  };
+}
+
 function pipelineStatus(current: QuoteSubmission, next: QuoteSubmission, explicitStatus?: QuoteStatus) {
   if (explicitStatus) return explicitStatus;
   if (current.status === 'completed') return 'completed';
@@ -332,6 +386,93 @@ function pipelineStatus(current: QuoteSubmission, next: QuoteSubmission, explici
     current.workerPay !== next.workerPay;
 
   return wasWorked ? 'reviewing' : current.status;
+}
+
+function statusNotification(status: QuoteStatus, quote: QuoteSubmission): Omit<QuoteNotification, 'id' | 'quoteId' | 'createdAt'> | null {
+  if (status === 'reviewing') {
+    return {
+      audience: 'all',
+      title: 'Dossier en analyse',
+      message: 'La demande est en cours de qualification par l equipe.',
+      tone: 'info',
+    };
+  }
+  if (status === 'quoted') {
+    return {
+      audience: 'all',
+      title: 'Estimation envoyee',
+      message: quote.estimate
+        ? `Une estimation de ${quote.estimate} est disponible dans le portail client.`
+        : 'Une estimation est disponible dans le portail client.',
+      tone: 'success',
+    };
+  }
+  if (status === 'accepted') {
+    return {
+      audience: 'all',
+      title: 'Prix accepte',
+      message: 'Le client a accepte l estimation. Le travail peut maintenant etre planifie.',
+      tone: 'success',
+    };
+  }
+  if (status === 'scheduled') {
+    return {
+      audience: 'all',
+      title: 'Travail planifie',
+      message: quote.nextVisit
+        ? `Le travail est planifie pour ${quote.nextVisit}.`
+        : 'Le travail est planifie avec un intervenant.',
+      tone: 'success',
+    };
+  }
+  if (status === 'completed') {
+    return {
+      audience: 'all',
+      title: 'Travail termine',
+      message: 'Le dossier est termine. Le rapport est disponible dans le portail.',
+      tone: 'success',
+    };
+  }
+  return null;
+}
+
+function updateNotifications(current: QuoteSubmission, next: QuoteSubmission): Array<Omit<QuoteNotification, 'id' | 'quoteId' | 'createdAt'>> {
+  const notifications: Array<Omit<QuoteNotification, 'id' | 'quoteId' | 'createdAt'>> = [];
+
+  if (current.status !== next.status) {
+    const notification = statusNotification(next.status, next);
+    if (notification) notifications.push(notification);
+    return notifications;
+  }
+
+  if ((current.estimate ?? '') !== (next.estimate ?? '') && next.estimate) {
+    notifications.push({
+      audience: 'all',
+      title: 'Estimation mise a jour',
+      message: `Le prix propose est maintenant ${next.estimate}.`,
+      tone: 'info',
+    });
+  }
+
+  if ((current.nextVisit ?? '') !== (next.nextVisit ?? '') && next.nextVisit) {
+    notifications.push({
+      audience: 'all',
+      title: 'Date mise a jour',
+      message: `La prochaine visite est proposee pour ${next.nextVisit}.`,
+      tone: 'info',
+    });
+  }
+
+  if ((current.assignedWorkerCode ?? '') !== (next.assignedWorkerCode ?? '') && next.assignedWorkerName) {
+    notifications.push({
+      audience: 'admin',
+      title: 'Intervenant assigne',
+      message: `${next.assignedWorkerName} est assigne au dossier ${next.id}.`,
+      tone: 'info',
+    });
+  }
+
+  return notifications;
 }
 
 async function supabaseFetch<T>(endpoint: string, init?: RequestInit): Promise<T> {
@@ -424,6 +565,67 @@ async function createWorkerInSupabase(worker: Worker) {
   return toWorker(rows[0]);
 }
 
+async function createNotificationsInSupabase(quoteId: string, notifications: Array<Omit<QuoteNotification, 'id' | 'quoteId' | 'createdAt'>>) {
+  if (notifications.length === 0) return [];
+
+  const createdAt = new Date().toISOString();
+  try {
+    const rows = await supabaseFetch<SupabaseNotificationRow[]>('quote_notifications', {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify(
+        notifications.map((notification) => ({
+          id: makeNotificationId(),
+          quote_id: quoteId,
+          created_at: createdAt,
+          audience: notification.audience,
+          title: notification.title,
+          message: notification.message,
+          tone: notification.tone,
+        })),
+      ),
+    });
+
+    return rows.map(toNotification);
+  } catch {
+    return [];
+  }
+}
+
+async function notificationsForQuote(quoteId: string) {
+  if (hasSupabase()) {
+    try {
+      const rows = await supabaseFetch<SupabaseNotificationRow[]>(
+        `quote_notifications?select=*&quote_id=eq.${encodeURIComponent(quoteId)}&order=created_at.desc`,
+      );
+      return rows.map(toNotification);
+    } catch {
+      return [];
+    }
+  }
+
+  const db = await readDb();
+  return db.notifications
+    .filter((notification) => notification.quoteId === quoteId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function listNotifications(limit = 20) {
+  if (hasSupabase()) {
+    try {
+      const rows = await supabaseFetch<SupabaseNotificationRow[]>(
+        `quote_notifications?select=*&order=created_at.desc&limit=${limit}`,
+      );
+      return rows.map(toNotification);
+    } catch {
+      return [];
+    }
+  }
+
+  const db = await readDb();
+  return [...db.notifications].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, limit);
+}
+
 async function updateQuoteInSupabase(id: string, update: QuoteUpdate) {
   const currentRows = await supabaseFetch<SupabaseQuoteRow[]>(
     `quotes?select=*&id=eq.${encodeURIComponent(id)}&limit=1`,
@@ -460,7 +662,12 @@ async function updateQuoteInSupabase(id: string, update: QuoteUpdate) {
     },
   );
 
-  return rows[0] ? toQuote(rows[0]) : null;
+  const updated = rows[0] ? toQuote(rows[0]) : null;
+  if (updated) {
+    await createNotificationsInSupabase(updated.id, updateNotifications(current, updated));
+  }
+
+  return updated;
 }
 
 async function deleteQuoteInSupabase(id: string) {
@@ -505,6 +712,7 @@ async function findPortalInSupabase(input: Record<string, unknown>) {
     quotes,
     quote,
     reports: await reportsForQuote(quote.id),
+    notifications: await notificationsForQuote(quote.id),
   };
 }
 
@@ -619,6 +827,13 @@ export async function updateQuote(id: string, update: QuoteUpdate) {
   if (update.assignedWorkerCode !== undefined) quote.assignedWorkerCode = update.assignedWorkerCode;
   if (update.workerPay !== undefined) quote.workerPay = update.workerPay;
   quote.status = pipelineStatus(current, quote, update.status);
+  const notifications = updateNotifications(current, quote).map((notification) => ({
+    id: makeNotificationId(),
+    quoteId: quote.id,
+    createdAt: new Date().toISOString(),
+    ...notification,
+  }));
+  db.notifications.unshift(...notifications);
 
   await writeDb(db);
   return quote;
@@ -633,6 +848,7 @@ export async function deleteQuote(id: string) {
   const beforeCount = db.quotes.length;
   db.quotes = db.quotes.filter((item) => item.id !== id);
   db.reports = db.reports.filter((report) => report.quoteId !== id);
+  db.notifications = db.notifications.filter((notification) => notification.quoteId !== id);
 
   if (db.quotes.length === beforeCount) return false;
 
@@ -669,6 +885,9 @@ export async function findClientPortal(input: Record<string, unknown>) {
     quotes,
     quote,
     reports: db.reports.filter((report) => report.quoteId === quote.id),
+    notifications: db.notifications
+      .filter((notification) => notification.quoteId === quote.id)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   };
 }
 
@@ -726,7 +945,18 @@ export async function createWorkerReport(input: Record<string, unknown>) {
   const db = await readDb();
   db.reports.unshift(report);
   const storedQuote = db.quotes.find((item) => item.id === quoteId);
-  if (storedQuote) storedQuote.status = 'completed';
+  if (storedQuote) {
+    const current = { ...storedQuote };
+    storedQuote.status = 'completed';
+    db.notifications.unshift(
+      ...updateNotifications(current, storedQuote).map((notification) => ({
+        id: makeNotificationId(),
+        quoteId: storedQuote.id,
+        createdAt: new Date().toISOString(),
+        ...notification,
+      })),
+    );
+  }
   await writeDb(db);
   return { report, quote: storedQuote ?? quote };
 }

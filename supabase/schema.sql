@@ -72,6 +72,19 @@ create table if not exists public.service_reports (
 
 create index if not exists service_reports_quote_id_idx on public.service_reports (quote_id);
 
+create table if not exists public.quote_notifications (
+  id text primary key,
+  quote_id text not null references public.quotes(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  audience text not null default 'all' check (audience in ('admin', 'client', 'all')),
+  title text not null,
+  message text not null,
+  tone text not null default 'info' check (tone in ('info', 'success', 'warning'))
+);
+
+create index if not exists quote_notifications_quote_id_idx on public.quote_notifications (quote_id);
+create index if not exists quote_notifications_created_at_idx on public.quote_notifications (created_at desc);
+
 create table if not exists public.workers (
   id text primary key,
   created_at timestamptz not null default now(),
@@ -88,6 +101,7 @@ alter table public.workers drop column if exists default_pay;
 
 alter table public.quotes enable row level security;
 alter table public.service_reports enable row level security;
+alter table public.quote_notifications enable row level security;
 alter table public.workers enable row level security;
 
 -- The Next.js server uses SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS.
