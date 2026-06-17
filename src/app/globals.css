@@ -1891,6 +1891,24 @@ h3 {
   gap: 20px;
 }
 
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.danger-button {
+  border-color: rgba(220, 38, 38, 0.28);
+  color: #b91c1c;
+}
+
+.danger-button:hover {
+  border-color: #dc2626;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .detail-title {
   display: flex;
   align-items: center;

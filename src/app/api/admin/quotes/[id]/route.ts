@@ -1,4 +1,4 @@
-import { updateQuote } from '@/lib/db';
+import { deleteQuote, updateQuote } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +14,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const { id } = await context.params;
   const quote = await updateQuote(id, {
+    status: body.status === undefined ? undefined : String(body.status) as never,
     estimate: body.estimate === undefined ? undefined : String(body.estimate),
     nextVisit: body.nextVisit === undefined ? undefined : String(body.nextVisit),
     assignedWorkerName: body.assignedWorkerName === undefined ? undefined : String(body.assignedWorkerName),
@@ -26,4 +27,24 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 
   return Response.json({ ok: true, quote });
+}
+
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
+  const url = new URL(request.url);
+  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+  const code = String(body.code ?? url.searchParams.get('code') ?? '');
+  const adminCode = process.env.ADMIN_CODE ?? 'admin123';
+
+  if (code !== adminCode) {
+    return Response.json({ ok: false, message: 'Acces refuse' }, { status: 401 });
+  }
+
+  const { id } = await context.params;
+  const deleted = await deleteQuote(id);
+
+  if (!deleted) {
+    return Response.json({ ok: false, message: 'Soumission introuvable' }, { status: 404 });
+  }
+
+  return Response.json({ ok: true });
 }

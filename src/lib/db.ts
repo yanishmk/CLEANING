@@ -463,6 +463,18 @@ async function updateQuoteInSupabase(id: string, update: QuoteUpdate) {
   return rows[0] ? toQuote(rows[0]) : null;
 }
 
+async function deleteQuoteInSupabase(id: string) {
+  const rows = await supabaseFetch<SupabaseQuoteRow[]>(
+    `quotes?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: 'DELETE',
+      headers: { Prefer: 'return=representation' },
+    },
+  );
+
+  return rows.length > 0;
+}
+
 async function reportsForQuote(quoteId: string) {
   if (hasSupabase()) {
     const rows = await supabaseFetch<SupabaseReportRow[]>(
@@ -610,6 +622,22 @@ export async function updateQuote(id: string, update: QuoteUpdate) {
 
   await writeDb(db);
   return quote;
+}
+
+export async function deleteQuote(id: string) {
+  if (hasSupabase()) {
+    return deleteQuoteInSupabase(id);
+  }
+
+  const db = await readDb();
+  const beforeCount = db.quotes.length;
+  db.quotes = db.quotes.filter((item) => item.id !== id);
+  db.reports = db.reports.filter((report) => report.quoteId !== id);
+
+  if (db.quotes.length === beforeCount) return false;
+
+  await writeDb(db);
+  return true;
 }
 
 export async function acceptClientQuote(input: Record<string, unknown>) {

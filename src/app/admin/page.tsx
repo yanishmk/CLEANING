@@ -48,7 +48,7 @@ type Worker = {
 };
 
 type AdminTab = 'dossiers' | 'planning' | 'equipe';
-type DossierFilter = 'new' | 'treated';
+type DossierFilter = 'active' | 'history';
 
 const statusLabels: Record<QuoteStatus, string> = {
   new: 'Nouvelle',
@@ -129,7 +129,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState('');
   const [search, setSearch] = useState('');
-  const [dossierFilter, setDossierFilter] = useState<DossierFilter>('new');
+  const [dossierFilter, setDossierFilter] = useState<DossierFilter>('active');
   const [estimate, setEstimate] = useState('');
   const [nextVisit, setNextVisit] = useState('');
   const [assignedWorkerName, setAssignedWorkerName] = useState('');
@@ -151,8 +151,8 @@ export default function AdminPage() {
 
     return quotes.filter((quote) => {
       const dossierMatches =
-        (dossierFilter === 'new' && quote.status === 'new') ||
-        (dossierFilter === 'treated' && quote.status !== 'new');
+        (dossierFilter === 'active' && quote.status !== 'completed') ||
+        (dossierFilter === 'history' && quote.status === 'completed');
       const searchMatches =
         !term ||
         [
@@ -180,14 +180,14 @@ export default function AdminPage() {
 
   const dossierCounts = useMemo(() => {
     return {
-      new: quotes.filter((quote) => quote.status === 'new').length,
-      treated: quotes.filter((quote) => quote.status !== 'new').length,
+      active: quotes.filter((quote) => quote.status !== 'completed').length,
+      history: quotes.filter((quote) => quote.status === 'completed').length,
     };
   }, [quotes]);
 
   const calendarItems = useMemo(() => {
     return [...quotes]
-      .filter((quote) => scheduleDate(quote))
+      .filter((quote) => quote.status !== 'completed' && scheduleDate(quote))
       .sort((a, b) => String(scheduleDate(a)).localeCompare(String(scheduleDate(b))))
       .slice(0, 12);
   }, [quotes]);
@@ -233,7 +233,8 @@ export default function AdminPage() {
     } else {
       setQuotes(quotesData.quotes);
       setWorkers(workersRes.ok ? workersData.workers : []);
-      if (quotesData.quotes[0]) syncEditor(quotesData.quotes[0]);
+      const firstActive = quotesData.quotes.find((quote: Quote) => quote.status !== 'completed');
+      if (firstActive ?? quotesData.quotes[0]) syncEditor(firstActive ?? quotesData.quotes[0]);
     }
     setLoading(false);
   }
@@ -301,6 +302,62 @@ export default function AdminPage() {
     setSaving(false);
   }
 
+  async function completeQuote() {
+    if (!selectedQuote) return;
+
+    setSaving(true);
+    setMessage('');
+
+    const res = await fetch(`/api/admin/quotes/${selectedQuote.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, status: 'completed' }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(data.message ?? 'Impossible de terminer la demande.');
+    } else {
+      setQuotes((current) => current.map((quote) => (quote.id === data.quote.id ? data.quote : quote)));
+      syncEditor(data.quote);
+      setDossierFilter('history');
+      setMessage("Demande placée dans l'historique.");
+    }
+    setSaving(false);
+  }
+
+  async function deleteSelectedQuote() {
+    if (!selectedQuote) return;
+    const confirmed = window.confirm(`Supprimer définitivement la demande ${selectedQuote.id} ?`);
+    if (!confirmed) return;
+
+    setSaving(true);
+    setMessage('');
+
+    const res = await fetch(`/api/admin/quotes/${selectedQuote.id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(data.message ?? 'Impossible de supprimer la demande.');
+    } else {
+      const remaining = quotes.filter((quote) => quote.id !== selectedQuote.id);
+      const next =
+        remaining.find((quote) =>
+          dossierFilter === 'active' ? quote.status !== 'completed' : quote.status === 'completed',
+        ) ?? remaining[0];
+
+      setQuotes(remaining);
+      if (next) syncEditor(next);
+      else setSelectedId('');
+      setMessage('Demande supprimée.');
+    }
+    setSaving(false);
+  }
+
   return (
     <main className="admin-page manager-page">
       <div className="manager-topbar">
@@ -363,11 +420,11 @@ export default function AdminPage() {
                   placeholder="Rechercher client, intervenant, ville..."
                 />
                 <div className="dossier-filter" aria-label="Tri des dossiers">
-                  <button className={dossierFilter === 'new' ? 'active' : ''} onClick={() => setDossierFilter('new')} type="button">
-                    Nouveaux <span>{dossierCounts.new}</span>
+                  <button className={dossierFilter === 'active' ? 'active' : ''} onClick={() => setDossierFilter('active')} type="button">
+                    Actifs <span>{dossierCounts.active}</span>
                   </button>
-                  <button className={dossierFilter === 'treated' ? 'active' : ''} onClick={() => setDossierFilter('treated')} type="button">
-                    Traités <span>{dossierCounts.treated}</span>
+                  <button className={dossierFilter === 'history' ? 'active' : ''} onClick={() => setDossierFilter('history')} type="button">
+                    Historique <span>{dossierCounts.history}</span>
                   </button>
                 </div>
               </div>
@@ -417,6 +474,16 @@ export default function AdminPage() {
                   <span className={`status-pill admin-status-${selectedQuote.status}`}>
                     {statusIcons[selectedQuote.status]} {statusLabels[selectedQuote.status]}
                   </span>
+                  <div className="detail-actions">
+                    {selectedQuote.status !== 'completed' && (
+                      <button className="button button-secondary button-small" disabled={saving} onClick={completeQuote} type="button">
+                        Terminer
+                      </button>
+                    )}
+                    <button className="button button-secondary button-small danger-button" disabled={saving} onClick={deleteSelectedQuote} type="button">
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
 
                 {showClientInfo && (
