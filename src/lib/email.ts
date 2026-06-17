@@ -103,3 +103,63 @@ export async function sendQuoteConfirmation(quote: QuoteSubmission): Promise<Ema
 
   return { sent: true };
 }
+
+export async function sendQuoteEstimate(quote: QuoteSubmission): Promise<EmailResult> {
+  if (!resendApiKey) {
+    return { sent: false, reason: 'RESEND_API_KEY missing' };
+  }
+
+  const portalUrl = siteUrl
+    ? `${siteUrl.replace(/\/$/, '')}/portail?reference=${encodeURIComponent(quote.id)}`
+    : undefined;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: quote.email,
+      subject: `Votre estimation ${quote.id} - Cleaning Sol`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #14213d; line-height: 1.6;">
+          <h1>Votre estimation est prete</h1>
+          <p>Bonjour ${quote.name},</p>
+          <p>Nous avons prepare votre estimation pour la demande <strong>${quote.id}</strong>.</p>
+          <p style="font-size: 24px; font-weight: 800; color: #0f766e;">${quote.estimate}</p>
+          ${
+            quote.nextVisit
+              ? `<p><strong>Prochaine visite proposee:</strong> ${quote.nextVisit}</p>`
+              : ''
+          }
+          <p>Vous pouvez consulter votre dossier et accepter l'estimation dans le portail client.</p>
+          ${
+            portalUrl
+              ? `<p><a href="${portalUrl}" style="display: inline-block; background: #0f766e; color: #ffffff; padding: 12px 18px; border-radius: 8px; text-decoration: none; font-weight: 700;">Ouvrir mon portail client</a></p>`
+              : ''
+          }
+          <p>Merci,<br/>Cleaning Sol</p>
+        </div>
+      `,
+      text: [
+        `Bonjour ${quote.name},`,
+        '',
+        `Votre estimation Cleaning Sol est prete pour la demande ${quote.id}.`,
+        `Estimation: ${quote.estimate}`,
+        ...(quote.nextVisit ? [`Prochaine visite proposee: ${quote.nextVisit}`] : []),
+        ...(portalUrl ? [`Portail client: ${portalUrl}`] : []),
+        '',
+        'Merci,',
+        'Cleaning Sol',
+      ].join('\n'),
+    }),
+  });
+
+  if (!res.ok) {
+    return { sent: false, reason: await res.text() };
+  }
+
+  return { sent: true };
+}

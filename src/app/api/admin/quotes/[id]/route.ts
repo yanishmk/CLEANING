@@ -1,4 +1,5 @@
-import { deleteQuote, updateQuote } from '@/lib/db';
+import { deleteQuote, listQuotes, updateQuote } from '@/lib/db';
+import { sendQuoteEstimate } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 
   const { id } = await context.params;
+  const previousQuote = (await listQuotes()).find((item) => item.id === id);
   const quote = await updateQuote(id, {
     status: body.status === undefined ? undefined : String(body.status) as never,
     estimate: body.estimate === undefined ? undefined : String(body.estimate),
@@ -26,7 +28,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return Response.json({ ok: false, message: 'Soumission introuvable' }, { status: 404 });
   }
 
-  return Response.json({ ok: true, quote });
+  const nextEstimate = body.estimate === undefined ? '' : String(body.estimate).trim();
+  const previousEstimate = previousQuote?.estimate?.trim() ?? '';
+  const shouldSendEstimateEmail = Boolean(nextEstimate) && nextEstimate !== previousEstimate;
+  const email = shouldSendEstimateEmail ? await sendQuoteEstimate(quote) : null;
+
+  return Response.json({ ok: true, quote, email });
 }
 
 export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {

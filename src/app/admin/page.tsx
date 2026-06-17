@@ -301,7 +301,13 @@ export default function AdminPage() {
       setQuotes((current) =>
         current.map((quote) => (quote.id === data.quote.id ? data.quote : quote)),
       );
-      setMessage('Soumission mise à jour.');
+      if (data.email?.sent) {
+        setMessage('Soumission mise à jour. Courriel envoyé au client.');
+      } else if (data.email && !data.email.sent) {
+        setMessage(`Soumission mise à jour, mais le courriel n est pas parti: ${data.email.reason ?? 'configuration email a verifier'}.`);
+      } else {
+        setMessage('Soumission mise à jour.');
+      }
     }
     setSaving(false);
   }
