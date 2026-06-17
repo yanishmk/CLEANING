@@ -295,6 +295,12 @@ export default function Home() {
 
   async function submitEstimate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (quoteStep < quoteSteps.length - 1) {
+      nextQuoteStep();
+      return;
+    }
+
     const form = event.currentTarget;
     const formData = new FormData(form);
     const required = ['name', 'email', 'phone', 'address', 'service', 'city'];
