@@ -2642,6 +2642,19 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .section,
+  .booking-section {
+    padding-block: clamp(42px, 9vw, 64px);
+  }
+
+  .booking-section {
+    gap: 22px;
+  }
+
+  .booking-copy .contact-lines {
+    margin-top: 16px;
+  }
+
   .hero-media,
   .hero-media img {
     min-height: 420px;
@@ -2721,29 +2734,165 @@ h3 {
 
 @media (max-width: 620px) {
   .site-header {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    min-height: auto;
+    padding: 10px 14px;
   }
 
-  .header-actions,
-  .header-actions .button {
-    width: 100%;
+  .brand {
+    min-width: 0;
+  }
+
+  .brand > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .header-actions .button-secondary {
+    display: none;
+  }
+
+  .header-actions .button,
+  .lang-button {
+    min-height: 36px;
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .hero-section {
+    min-height: auto;
+    padding: 34px 16px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.4rem, 13vw, 3.7rem);
+  }
+
+  .hero-media,
+  .hero-media img {
+    min-height: 280px;
+  }
+
+  .section,
+  .booking-section {
+    padding: 38px 16px;
+  }
+
+  .section-heading {
+    margin-bottom: 24px;
+  }
+
+  .section-heading h2,
+  .booking-copy h2 {
+    font-size: clamp(2rem, 11vw, 3.1rem);
+  }
+
+  .booking-copy > p {
+    display: none;
   }
 
   .quote-form {
     grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
+    box-shadow: 0 14px 36px rgba(16, 42, 67, 0.08);
+  }
+
+  .quote-stepper {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0 0 8px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .quote-stepper > span {
+    flex: 0 0 auto;
+    min-width: 42px;
+    justify-content: center;
+    scroll-snap-align: start;
+    font-size: 0;
+    padding: 7px;
+  }
+
+  .quote-stepper span span {
+    width: 26px;
+    height: 26px;
+    font-size: 0.8rem;
+  }
+
+  .quote-stepper > span.active {
+    min-width: 116px;
+    justify-content: flex-start;
+    font-size: 0.82rem;
   }
 
   .quote-step {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
-  .room-photo-strip div {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .quote-form-intro {
+    align-items: center;
+    padding: 10px;
+  }
+
+  .quote-form-intro span {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .quote-form-intro p {
+    display: none;
+  }
+
+  .quote-form input,
+  .quote-form select,
+  .quote-form textarea {
+    padding: 11px 12px;
   }
 
   .quote-options {
     grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .quote-options label {
+    padding: 8px 10px;
+  }
+
+  .quote-clean-field,
+  .quote-photo-details summary,
+  .quote-photo-details div {
+    padding: 10px;
+  }
+
+  .quote-form-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    margin: 0 -14px -14px;
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.94);
+    padding: 10px 14px;
+    backdrop-filter: blur(14px);
+  }
+
+  .quote-form-actions .button {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .room-photo-strip div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .quote-photo-details div {
