@@ -871,26 +871,31 @@ export default function Home() {
           </fieldset>
           </fieldset>
           <fieldset className={`quote-step ${quoteStep === 3 ? 'active' : ''}`}>
-          <div className="quote-form-intro full">
+          <div className="quote-form-intro quote-final-intro full">
             <span>4</span>
             <div>
-              <strong>Photos et priorites</strong>
-              <p>Photos optionnelles. Vous pouvez envoyer la demande sans photo.</p>
+              <strong>Derniere verification</strong>
+              <p>Les photos sont optionnelles. Vous pouvez envoyer la demande maintenant.</p>
             </div>
           </div>
-          <label className="full">
-            Prendre une photo
-            <input name="roomPhotos" type="file" accept="image/*" capture="environment" />
-          </label>
-          <label className="full">
-            Charger depuis la galerie
-            <input name="roomPhotos" type="file" accept="image/*" multiple />
-          </label>
-          <label className="full">
+          <details className="quote-photo-details full">
+            <summary>Ajouter des photos des pieces</summary>
+            <div>
+              <label>
+                Prendre une photo
+                <input name="roomPhotos" type="file" accept="image/*" capture="environment" />
+              </label>
+              <label>
+                Charger depuis la galerie
+                <input name="roomPhotos" type="file" accept="image/*" multiple />
+              </label>
+            </div>
+          </details>
+          <label className="full quote-clean-field">
             Acces / stationnement
             <input name="accessNotes" placeholder="Code, etage, ascenseur, animaux..." />
           </label>
-          <label className="full">
+          <label className="full quote-clean-field">
             Détails
             <textarea name="message" rows={5} placeholder="Surface, fréquence, date souhaitée..." />
           </label>
