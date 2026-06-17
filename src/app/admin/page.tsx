@@ -140,6 +140,8 @@ export default function AdminPage() {
   const [newWorkerEmail, setNewWorkerEmail] = useState('');
   const [newWorkerCode, setNewWorkerCode] = useState('');
   const [showClientInfo, setShowClientInfo] = useState(false);
+  const [showTreatment, setShowTreatment] = useState(false);
+  const [showQuoteActions, setShowQuoteActions] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('dossiers');
   const [saving, setSaving] = useState(false);
   const [creatingWorker, setCreatingWorker] = useState(false);
@@ -195,6 +197,8 @@ export default function AdminPage() {
   function syncEditor(quote: Quote) {
     setSelectedId(quote.id);
     setShowClientInfo(false);
+    setShowTreatment(false);
+    setShowQuoteActions(false);
     setEstimate(quote.estimate ?? '');
     setNextVisit(quote.nextVisit || preferredDateTime(quote));
     setAssignedWorkerName(quote.assignedWorkerName ?? '');
@@ -321,6 +325,7 @@ export default function AdminPage() {
       setQuotes((current) => current.map((quote) => (quote.id === data.quote.id ? data.quote : quote)));
       syncEditor(data.quote);
       setDossierFilter('history');
+      setShowQuoteActions(false);
       setMessage("Demande placée dans l'historique.");
     }
     setSaving(false);
@@ -353,6 +358,7 @@ export default function AdminPage() {
       setQuotes(remaining);
       if (next) syncEditor(next);
       else setSelectedId('');
+      setShowQuoteActions(false);
       setMessage('Demande supprimée.');
     }
     setSaving(false);
@@ -475,14 +481,36 @@ export default function AdminPage() {
                     {statusIcons[selectedQuote.status]} {statusLabels[selectedQuote.status]}
                   </span>
                   <div className="detail-actions">
-                    {selectedQuote.status !== 'completed' && (
-                      <button className="button button-secondary button-small" disabled={saving} onClick={completeQuote} type="button">
-                        Terminer
-                      </button>
-                    )}
-                    <button className="button button-secondary button-small danger-button" disabled={saving} onClick={deleteSelectedQuote} type="button">
-                      Supprimer
+                    <button
+                      className="button button-secondary button-small"
+                      onClick={() => setShowTreatment((current) => !current)}
+                      type="button"
+                    >
+                      Modifier
                     </button>
+                    <div className="quote-actions-menu">
+                      <button
+                        aria-expanded={showQuoteActions}
+                        aria-label="Options de la demande"
+                        className="icon-menu-button"
+                        onClick={() => setShowQuoteActions((current) => !current)}
+                        type="button"
+                      >
+                        ...
+                      </button>
+                      {showQuoteActions && (
+                        <div className="quote-actions-popover">
+                          {selectedQuote.status !== 'completed' && (
+                            <button disabled={saving} onClick={completeQuote} type="button">
+                              Mettre en historique
+                            </button>
+                          )}
+                          <button className="danger-menu-item" disabled={saving} onClick={deleteSelectedQuote} type="button">
+                            Supprimer
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -595,7 +623,11 @@ export default function AdminPage() {
                   <p>{selectedQuote.message || 'Aucun détail supplémentaire.'}</p>
                 </details>
 
-                <details className="manager-treatment-panel collapsible-panel" open>
+                <details
+                  className="manager-treatment-panel collapsible-panel"
+                  onToggle={(event) => setShowTreatment(event.currentTarget.open)}
+                  open={showTreatment}
+                >
                   <summary>
                     <span className="panel-icon">⚙️</span>
                     <span>Traitement</span>

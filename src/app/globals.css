@@ -1898,6 +1898,68 @@ h3 {
   gap: 10px;
 }
 
+.quote-actions-menu {
+  position: relative;
+}
+
+.icon-menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.icon-menu-button:hover {
+  border-color: rgba(15, 118, 110, 0.28);
+  background: var(--soft);
+}
+
+.quote-actions-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 5;
+  display: grid;
+  min-width: 190px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.quote-actions-popover button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 13px 14px;
+  text-align: left;
+}
+
+.quote-actions-popover button:hover {
+  background: var(--soft);
+}
+
+.quote-actions-popover .danger-menu-item {
+  color: #b91c1c;
+}
+
+.quote-actions-popover .danger-menu-item:hover {
+  background: #fee2e2;
+}
+
 .danger-button {
   border-color: rgba(220, 38, 38, 0.28);
   color: #b91c1c;
