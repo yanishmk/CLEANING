@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLang } from '@/context/LangContext';
@@ -291,17 +291,16 @@ export default function Home() {
   const [quoteCopied, setQuoteCopied] = useState(false);
   const [quoteStep, setQuoteStep] = useState(0);
   const [formError, setFormError] = useState('');
+  const quoteFormRef = useRef<HTMLFormElement>(null);
   const c = copy[lang];
 
-  async function submitEstimate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (quoteStep < quoteSteps.length - 1) {
-      nextQuoteStep();
+  async function submitEstimate(form: HTMLFormElement) {
+    if (quoteStep !== quoteSteps.length - 1) {
+      setQuoteStep(quoteSteps.length - 1);
+      setFormError('Verifiez la derniere etape avant d envoyer la demande.');
       return;
     }
 
-    const form = event.currentTarget;
     const formData = new FormData(form);
     const required = ['name', 'email', 'phone', 'address', 'service', 'city'];
     const missing = required.find((field) => !String(formData.get(field) ?? '').trim());
@@ -375,6 +374,13 @@ export default function Home() {
     }
 
     setLoading(false);
+  }
+
+  function handleQuoteFormSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (quoteStep < quoteSteps.length - 1) {
+      nextQuoteStep();
+    }
   }
 
   function nextQuoteStep() {
@@ -731,7 +737,7 @@ export default function Home() {
             <a href="mailto:info@cleaningsol.ca">info@cleaningsol.ca</a>
           </div>
         </div>
-        <form className="quote-form" onSubmit={submitEstimate} noValidate>
+        <form className="quote-form" ref={quoteFormRef} onSubmit={handleQuoteFormSubmit} noValidate>
           <div className="quote-stepper full" aria-label="Etapes du questionnaire">
             {quoteSteps.map((step, index) => (
               <span className={index <= quoteStep ? 'active' : ''} key={step}>
@@ -910,7 +916,14 @@ export default function Home() {
                 Suivant
               </button>
             ) : (
-              <button className="button" type="submit" disabled={loading}>
+              <button
+                className="button"
+                type="button"
+                disabled={loading}
+                onClick={() => {
+                  if (quoteFormRef.current) void submitEstimate(quoteFormRef.current);
+                }}
+              >
                 {loading ? c.sending : c.submit}
               </button>
             )}
