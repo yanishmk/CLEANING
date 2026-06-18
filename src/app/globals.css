@@ -225,15 +225,15 @@ nav a:hover,
   top: calc(100% + 10px);
   z-index: 20;
   display: grid;
-  gap: 10px;
-  width: min(360px, calc(100vw - 28px));
-  max-height: 430px;
+  gap: 8px;
+  width: min(330px, calc(100vw - 28px));
+  max-height: 360px;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
   box-shadow: var(--shadow);
-  padding: 14px;
+  padding: 12px;
 }
 
 .admin-notification-popover .notification-item {
@@ -242,6 +242,22 @@ nav a:hover,
   cursor: pointer;
   font: inherit;
   text-align: left;
+}
+
+.notification-item-compact {
+  gap: 2px;
+  padding: 10px 12px;
+}
+
+.notification-item-compact strong {
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.notification-item-compact span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .notification-empty {
@@ -3216,6 +3232,26 @@ h3 {
     min-height: 36px;
     padding: 0 10px;
     white-space: nowrap;
+  }
+
+  .manager-nav-actions {
+    width: 100%;
+  }
+
+  .admin-notification-menu {
+    order: -1;
+  }
+
+  .notification-bubble-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .admin-notification-popover {
+    left: 0;
+    right: auto;
+    width: min(330px, calc(100vw - 28px));
+    max-height: 320px;
   }
 
   .hero-section {

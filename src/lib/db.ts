@@ -392,44 +392,40 @@ function statusNotification(status: QuoteStatus, quote: QuoteSubmission): Omit<Q
   if (status === 'reviewing') {
     return {
       audience: 'all',
-      title: 'Dossier en analyse',
-      message: 'La demande est en cours de qualification par l equipe.',
+      title: `${quote.name} est en analyse`,
+      message: quote.id,
       tone: 'info',
     };
   }
   if (status === 'quoted') {
     return {
       audience: 'all',
-      title: 'Estimation envoyee',
-      message: quote.estimate
-        ? `Une estimation de ${quote.estimate} est disponible dans le portail client.`
-        : 'Une estimation est disponible dans le portail client.',
+      title: `Estimation envoyee a ${quote.name}`,
+      message: quote.estimate ? `${quote.estimate} - ${quote.id}` : quote.id,
       tone: 'success',
     };
   }
   if (status === 'accepted') {
     return {
       audience: 'all',
-      title: 'Prix accepte',
-      message: 'Le client a accepte l estimation. Le travail peut maintenant etre planifie.',
+      title: `${quote.name} a accepte le prix`,
+      message: quote.id,
       tone: 'success',
     };
   }
   if (status === 'scheduled') {
     return {
       audience: 'all',
-      title: 'Travail planifie',
-      message: quote.nextVisit
-        ? `Le travail est planifie pour ${quote.nextVisit}.`
-        : 'Le travail est planifie avec un intervenant.',
+      title: `Travail planifie pour ${quote.name}`,
+      message: quote.nextVisit ? `${quote.nextVisit} - ${quote.id}` : quote.id,
       tone: 'success',
     };
   }
   if (status === 'completed') {
     return {
       audience: 'all',
-      title: 'Travail termine',
-      message: 'Le dossier est termine. Le rapport est disponible dans le portail.',
+      title: `Travail termine pour ${quote.name}`,
+      message: quote.id,
       tone: 'success',
     };
   }
@@ -448,8 +444,8 @@ function updateNotifications(current: QuoteSubmission, next: QuoteSubmission): A
   if ((current.estimate ?? '') !== (next.estimate ?? '') && next.estimate) {
     notifications.push({
       audience: 'all',
-      title: 'Estimation mise a jour',
-      message: `Le prix propose est maintenant ${next.estimate}.`,
+      title: `Prix modifie pour ${next.name}`,
+      message: `${next.estimate} - ${next.id}`,
       tone: 'info',
     });
   }
@@ -457,8 +453,8 @@ function updateNotifications(current: QuoteSubmission, next: QuoteSubmission): A
   if ((current.nextVisit ?? '') !== (next.nextVisit ?? '') && next.nextVisit) {
     notifications.push({
       audience: 'all',
-      title: 'Date mise a jour',
-      message: `La prochaine visite est proposee pour ${next.nextVisit}.`,
+      title: `Date modifiee pour ${next.name}`,
+      message: `${next.nextVisit} - ${next.id}`,
       tone: 'info',
     });
   }
@@ -466,8 +462,8 @@ function updateNotifications(current: QuoteSubmission, next: QuoteSubmission): A
   if ((current.assignedWorkerCode ?? '') !== (next.assignedWorkerCode ?? '') && next.assignedWorkerName) {
     notifications.push({
       audience: 'admin',
-      title: 'Intervenant assigne',
-      message: `${next.assignedWorkerName} est assigne au dossier ${next.id}.`,
+      title: `${next.assignedWorkerName} assigne a ${next.name}`,
+      message: next.id,
       tone: 'info',
     });
   }
@@ -478,8 +474,8 @@ function updateNotifications(current: QuoteSubmission, next: QuoteSubmission): A
 function newQuoteNotification(quote: QuoteSubmission): Omit<QuoteNotification, 'id' | 'quoteId' | 'createdAt'> {
   return {
     audience: 'all',
-    title: 'Nouvelle demande',
-    message: `${quote.name} a envoye une demande ${quote.service} a ${quote.city}.`,
+    title: `${quote.name} a envoye une demande`,
+    message: `${quote.service} - ${quote.city}`,
     tone: 'info',
   };
 }

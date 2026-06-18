@@ -424,7 +424,7 @@ export default function AdminPage() {
                 {recentNotifications.length > 0 ? (
                   recentNotifications.map((notification) => (
                     <button
-                      className={`notification-item tone-${notification.tone}`}
+                      className={`notification-item notification-item-compact tone-${notification.tone}`}
                       key={notification.id}
                       onClick={() => {
                         const quote = quotes.find((item) => item.id === notification.quoteId);
@@ -435,9 +435,8 @@ export default function AdminPage() {
                       }}
                       type="button"
                     >
-                      <span>{new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
                       <strong>{notification.title}</strong>
-                      <p>{notification.message}</p>
+                      <span>{notification.message} · {new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
                     </button>
                   ))
                 ) : (
@@ -609,10 +608,9 @@ export default function AdminPage() {
                       <strong>{selectedNotifications.length}</strong>
                     </div>
                     {selectedNotifications.map((notification) => (
-                      <div className={`notification-item tone-${notification.tone}`} key={notification.id}>
-                        <span>{new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
+                      <div className={`notification-item notification-item-compact tone-${notification.tone}`} key={notification.id}>
                         <strong>{notification.title}</strong>
-                        <p>{notification.message}</p>
+                        <span>{notification.message} · {new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
                       </div>
                     ))}
                   </article>
