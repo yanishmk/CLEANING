@@ -19,6 +19,15 @@ type WorkerJob = {
   workerPay?: string;
 };
 
+type WorkerNotification = {
+  id: string;
+  quoteId: string;
+  createdAt: string;
+  title: string;
+  message: string;
+  tone: 'info' | 'success' | 'warning';
+};
+
 function fileToDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -31,12 +40,16 @@ function fileToDataUrl(file: File) {
 export default function WorkerPage() {
   const [code, setCode] = useState('');
   const [jobs, setJobs] = useState<WorkerJob[]>([]);
+  const [notifications, setNotifications] = useState<WorkerNotification[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const selectedJob = jobs.find((job) => job.id === selectedId) ?? jobs[0];
+  const selectedNotifications = selectedJob
+    ? notifications.filter((notification) => notification.quoteId === selectedJob.id).slice(0, 4)
+    : [];
 
   async function loadJobs(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,8 +62,10 @@ export default function WorkerPage() {
     if (!res.ok) {
       setMessage(data.message ?? 'Code intervenant invalide.');
       setJobs([]);
+      setNotifications([]);
     } else {
       setJobs(data.jobs);
+      setNotifications(data.notifications ?? []);
       setSelectedId(data.jobs[0]?.id ?? '');
       setMessage(data.jobs.length ? '' : 'Aucun travail assigné pour ce code.');
     }
@@ -92,6 +107,7 @@ export default function WorkerPage() {
       setJobs((current) =>
         current.map((job) => (job.id === selectedJob.id ? { ...job, status: 'completed' } : job)),
       );
+      if (result.notifications) setNotifications(result.notifications);
       form.reset();
       setMessage('Rapport envoyé. Le client peut maintenant voir les photos.');
     }
@@ -184,6 +200,22 @@ export default function WorkerPage() {
                 <p>{selectedJob.message || 'Aucun détail.'}</p>
               </article>
             </div>
+
+            {selectedNotifications.length > 0 && (
+              <article className="notification-feed worker-notification-feed">
+                <div className="notification-feed-head">
+                  <span>Activite du travail</span>
+                  <strong>{selectedNotifications.length}</strong>
+                </div>
+                {selectedNotifications.map((notification) => (
+                  <div className={`notification-item tone-${notification.tone}`} key={notification.id}>
+                    <span>{new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
+                    <strong>{notification.title}</strong>
+                    <p>{notification.message}</p>
+                  </div>
+                ))}
+              </article>
+            )}
 
             <details className="worker-report-panel collapsible-panel" open>
               <summary>

@@ -475,6 +475,15 @@ function updateNotifications(current: QuoteSubmission, next: QuoteSubmission): A
   return notifications;
 }
 
+function newQuoteNotification(quote: QuoteSubmission): Omit<QuoteNotification, 'id' | 'quoteId' | 'createdAt'> {
+  return {
+    audience: 'all',
+    title: 'Nouvelle demande',
+    message: `${quote.name} a envoye une demande ${quote.service} a ${quote.city}.`,
+    tone: 'info',
+  };
+}
+
 async function supabaseFetch<T>(endpoint: string, init?: RequestInit): Promise<T> {
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('supabase_not_configured');
@@ -534,7 +543,9 @@ async function createQuoteInSupabase(quote: QuoteSubmission) {
     body: JSON.stringify(quotePayload(quote)),
   });
 
-  return toQuote(rows[0]);
+  const created = toQuote(rows[0]);
+  await createNotificationsInSupabase(created.id, [newQuoteNotification(created)]);
+  return created;
 }
 
 async function listQuotesFromSupabase() {
@@ -755,7 +766,14 @@ export async function createQuote(input: Record<string, unknown>) {
   }
 
   const db = await readDb();
+  const createdAt = new Date().toISOString();
   db.quotes.unshift(quote);
+  db.notifications.unshift({
+    id: makeNotificationId(),
+    quoteId: quote.id,
+    createdAt,
+    ...newQuoteNotification(quote),
+  });
   await writeDb(db);
   return quote;
 }
@@ -899,6 +917,23 @@ export async function listWorkerJobs(workerCode: string) {
   return quotes.filter((quote) => quote.assignedWorkerCode === code);
 }
 
+export async function listWorkerNotifications(workerCode: string) {
+  const jobs = await listWorkerJobs(workerCode);
+  const quoteIds = new Set(jobs.map((job) => job.id));
+
+  if (quoteIds.size === 0) return [];
+
+  if (hasSupabase()) {
+    const notifications = await Promise.all(jobs.map((job) => notificationsForQuote(job.id)));
+    return notifications.flat().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  const db = await readDb();
+  return db.notifications
+    .filter((notification) => quoteIds.has(notification.quoteId))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
 export async function createWorkerReport(input: Record<string, unknown>) {
   const code = normalize(input.code);
   const quoteId = normalize(input.quoteId);
@@ -939,7 +974,7 @@ export async function createWorkerReport(input: Record<string, unknown>) {
       }),
     });
     const updatedQuote = await updateQuote(quoteId, { status: 'completed' });
-    return { report: toReport(rows[0]), quote: updatedQuote ?? quote };
+    return { report: toReport(rows[0]), quote: updatedQuote ?? quote, notifications: await listWorkerNotifications(code) };
   }
 
   const db = await readDb();
@@ -958,5 +993,5 @@ export async function createWorkerReport(input: Record<string, unknown>) {
     );
   }
   await writeDb(db);
-  return { report, quote: storedQuote ?? quote };
+  return { report, quote: storedQuote ?? quote, notifications: await listWorkerNotifications(code) };
 }
