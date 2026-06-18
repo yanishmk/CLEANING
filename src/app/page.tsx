@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLang } from '@/context/LangContext';
@@ -291,8 +291,39 @@ export default function Home() {
   const [quoteCopied, setQuoteCopied] = useState(false);
   const [quoteStep, setQuoteStep] = useState(0);
   const [formError, setFormError] = useState('');
+  const [roomPhotoFiles, setRoomPhotoFiles] = useState<File[]>([]);
   const quoteFormRef = useRef<HTMLFormElement>(null);
   const c = copy[lang];
+  const roomPhotoPreviews = useMemo(
+    () => roomPhotoFiles.map((file) => ({ file, url: URL.createObjectURL(file) })),
+    [roomPhotoFiles],
+  );
+
+  useEffect(() => {
+    return () => {
+      roomPhotoPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [roomPhotoPreviews]);
+
+  function addRoomPhotos(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith('image/'));
+    if (files.length === 0) return;
+
+    setRoomPhotoFiles((current) => {
+      const next = [...current, ...files].slice(0, 8);
+      if (current.length + files.length > 8) {
+        setFormError('Maximum 8 photos pour garder l envoi rapide.');
+      } else {
+        setFormError('');
+      }
+      return next;
+    });
+    event.target.value = '';
+  }
+
+  function removeRoomPhoto(index: number) {
+    setRoomPhotoFiles((current) => current.filter((_, currentIndex) => currentIndex !== index));
+  }
 
   async function submitEstimate(form: HTMLFormElement) {
     if (quoteStep !== quoteSteps.length - 1) {
@@ -320,11 +351,7 @@ export default function Home() {
     setConfirmationEmailReason('');
     setQuoteCopied(false);
 
-    const roomPhotoFiles = formData
-      .getAll('roomPhotos')
-      .filter((file): file is File => file instanceof File && file.size > 0)
-      .slice(0, 4);
-    const roomPhotos = await Promise.all(roomPhotoFiles.map(imageFileToSmallDataUrl));
+    const roomPhotos = await Promise.all(roomPhotoFiles.slice(0, 8).map(imageFileToSmallDataUrl));
     const data = {
       name: String(formData.get('name') ?? ''),
       email: String(formData.get('email') ?? ''),
@@ -363,6 +390,7 @@ export default function Home() {
       }
 
       setQuoteReference(result.quote.id);
+      setRoomPhotoFiles([]);
       setConfirmationEmailSent(Boolean(result.email?.sent));
       setConfirmationEmailReason(result.email?.sent ? '' : String(result.email?.reason ?? 'Email non envoye.'));
       setSent(true);
@@ -884,19 +912,45 @@ export default function Home() {
               <p>Les photos sont optionnelles. Vous pouvez envoyer la demande maintenant.</p>
             </div>
           </div>
-          <details className="quote-photo-details full">
-            <summary>Ajouter des photos des pieces</summary>
-            <div>
+          <section className="quote-photo-uploader full" aria-label="Photos des pieces">
+            <div className="photo-uploader-head">
+              <div>
+                <span>Photos des pieces</span>
+                <strong>{roomPhotoFiles.length}/8</strong>
+              </div>
+              <p>Optionnel, mais utile pour une estimation plus juste. Ajoutez plusieurs angles si possible.</p>
+            </div>
+            <div className="photo-uploader-actions">
               <label>
-                Prendre une photo
-                <input name="roomPhotos" type="file" accept="image/*" capture="environment" />
+                <span>Camera</span>
+                <input type="file" accept="image/*" capture="environment" multiple onChange={addRoomPhotos} />
               </label>
               <label>
-                Charger depuis la galerie
-                <input name="roomPhotos" type="file" accept="image/*" multiple />
+                <span>Galerie</span>
+                <input type="file" accept="image/*" multiple onChange={addRoomPhotos} />
               </label>
             </div>
-          </details>
+            {roomPhotoPreviews.length > 0 ? (
+              <div className="photo-preview-grid">
+                {roomPhotoPreviews.map((preview, index) => (
+                  <figure key={`${preview.file.name}-${preview.file.lastModified}-${index}`}>
+                    <Image alt="" height={126} src={preview.url} unoptimized width={180} />
+                    <figcaption>
+                      <span>{index + 1}</span>
+                      <button type="button" onClick={() => removeRoomPhoto(index)} aria-label="Retirer cette photo">
+                        Retirer
+                      </button>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            ) : (
+              <div className="photo-empty-state">
+                <strong>Aucune photo ajoutee</strong>
+                <span>Vous pouvez envoyer la demande sans photo.</span>
+              </div>
+            )}
+          </section>
           <label className="full quote-clean-field">
             Acces / stationnement
             <input name="accessNotes" placeholder="Code, etage, ascenseur, animaux..." />
