@@ -2127,7 +2127,7 @@ h3 {
 
 .submission-detail {
   display: grid;
-  gap: 20px;
+  gap: 14px;
 }
 
 .detail-head {
@@ -2287,6 +2287,98 @@ h3 {
   overflow-wrap: anywhere;
 }
 
+.manager-live-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ecfdf5, #ffffff);
+  padding: 12px;
+  animation: alert-pop 320ms ease both;
+}
+
+.manager-live-alert > span {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #0f766e;
+  color: #fff;
+  flex: 0 0 auto;
+  font-weight: 900;
+}
+
+.manager-live-alert strong,
+.manager-live-alert small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.manager-live-alert small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.manager-live-alert.tone-warning {
+  background: linear-gradient(135deg, #fffbeb, #ffffff);
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
+.manager-live-alert.tone-warning > span {
+  background: #f59e0b;
+}
+
+.manager-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.manager-quick-actions button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 900;
+  padding: 10px 12px;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.manager-quick-actions button:hover,
+.manager-quick-actions button.active {
+  border-color: rgba(15, 118, 110, 0.32);
+  box-shadow: 0 12px 26px rgba(16, 42, 67, 0.08);
+  transform: translateY(-2px);
+}
+
+.manager-quick-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
+.manager-quick-actions span {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--teal-dark);
+  flex: 0 0 34px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2387,11 +2479,13 @@ h3 {
 }
 
 .detail-grid article,
-.manager-note {
+.manager-note,
+.manager-estimate-drawer,
+.manager-photo-drawer {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--soft);
-  padding: 18px;
+  padding: 14px;
   animation: card-enter 360ms ease both;
 }
 
@@ -2495,10 +2589,10 @@ h3 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  border: 1px solid rgba(15, 118, 110, 0.18);
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f7fbfa, #ffffff);
-  padding: 14px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
   animation: card-enter 360ms ease both;
 }
 
@@ -2532,10 +2626,10 @@ h3 {
 .room-photo-strip {
   display: grid;
   gap: 12px;
-  border: 1px solid rgba(15, 118, 110, 0.18);
-  border-radius: 8px;
-  background: #fff;
-  padding: 14px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
 }
 
 .room-photo-strip > span {
@@ -3020,6 +3114,17 @@ h3 {
   }
 }
 
+@keyframes alert-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -3185,7 +3290,8 @@ h3 {
   }
 
   .manager-filters,
-  .submission-row {
+  .submission-row,
+  .manager-quick-actions {
     grid-template-columns: 1fr;
   }
 
@@ -3252,6 +3358,59 @@ h3 {
     right: auto;
     width: min(330px, calc(100vw - 28px));
     max-height: 320px;
+  }
+
+  .admin-page {
+    padding-inline: 12px;
+  }
+
+  .manager-view-tabs {
+    position: sticky;
+    top: 8px;
+    z-index: 7;
+  }
+
+  .manager-view-tabs button {
+    min-height: 42px;
+    font-size: 13px;
+  }
+
+  .submission-list,
+  .submission-detail {
+    padding: 12px;
+  }
+
+  .detail-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .detail-actions .button {
+    flex: 1;
+  }
+
+  .manager-live-alert {
+    align-items: flex-start;
+  }
+
+  .manager-quick-actions {
+    gap: 8px;
+  }
+
+  .manager-quick-actions button {
+    min-height: 48px;
+  }
+
+  .pipeline-bar > span {
+    font-size: 11px;
+  }
+
+  .detail-grid article,
+  .manager-note,
+  .manager-estimate-drawer,
+  .manager-photo-drawer,
+  .manager-treatment-panel {
+    padding: 12px;
   }
 
   .hero-section {

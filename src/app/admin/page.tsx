@@ -602,17 +602,12 @@ export default function AdminPage() {
                 )}
 
                 {selectedNotifications.length > 0 && (
-                  <article className="notification-feed admin-notification-feed">
-                    <div className="notification-feed-head">
-                      <span>Activite recente</span>
-                      <strong>{selectedNotifications.length}</strong>
+                  <article className={`manager-live-alert tone-${selectedNotifications[0].tone}`}>
+                    <span aria-hidden="true">{selectedNotifications[0].tone === 'success' ? '✓' : '!'}</span>
+                    <div>
+                      <strong>{selectedNotifications[0].title}</strong>
+                      <small>{selectedNotifications[0].message}</small>
                     </div>
-                    {selectedNotifications.map((notification) => (
-                      <div className={`notification-item notification-item-compact tone-${notification.tone}`} key={notification.id}>
-                        <strong>{notification.title}</strong>
-                        <span>{notification.message} · {new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
-                      </div>
-                    ))}
                   </article>
                 )}
 
@@ -630,6 +625,35 @@ export default function AdminPage() {
                       </span>
                     );
                   })}
+                </div>
+
+                <div className="manager-quick-actions" aria-label="Actions rapides du dossier">
+                  <button
+                    className={showClientInfo ? 'active' : ''}
+                    onClick={() => setShowClientInfo((current) => !current)}
+                    type="button"
+                  >
+                    <span>{initials(selectedQuote.name)}</span>
+                    Client
+                  </button>
+                  <button
+                    onClick={() => setShowTreatment((current) => !current)}
+                    type="button"
+                  >
+                    <span>$</span>
+                    Modifier
+                  </button>
+                  <button
+                    onClick={() => {
+                      const firstPhoto = selectedQuote.roomPhotos?.[0];
+                      if (firstPhoto) setFullscreenPhoto(firstPhoto);
+                    }}
+                    type="button"
+                    disabled={!selectedQuote.roomPhotos?.length}
+                  >
+                    <span>{selectedQuote.roomPhotos?.length ?? 0}</span>
+                    Photos
+                  </button>
                 </div>
 
                 <div className="detail-grid manager-client-grid">
@@ -650,68 +674,79 @@ export default function AdminPage() {
                   </article>
                 </div>
 
-                <article className="estimate-brief">
-                  <div>
-                    <span>Type</span>
-                    <strong>{selectedQuote.propertyType || selectedQuote.service}</strong>
-                  </div>
-                  <div>
-                    <span>Surface</span>
-                    <strong>{selectedQuote.spaceSize || 'A confirmer'}</strong>
-                  </div>
-                  <div>
-                    <span>Etat</span>
-                    <strong>{selectedQuote.currentCondition || 'A confirmer'}</strong>
-                  </div>
-                  <div>
-                    <span>Frequence</span>
-                    <strong>{selectedQuote.frequency || 'A confirmer'}</strong>
-                  </div>
-                  <div>
-                    <span>Pieces</span>
-                    <strong>
-                      {[
-                        selectedQuote.bedrooms && `${selectedQuote.bedrooms} ch.`,
-                        selectedQuote.bathrooms && `${selectedQuote.bathrooms} sdb`,
-                        selectedQuote.rooms && `${selectedQuote.rooms} pieces`,
-                      ]
-                        .filter(Boolean)
-                        .join(' / ') || 'A confirmer'}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>Options</span>
-                    <strong>{selectedQuote.extras || 'Aucune option'}</strong>
-                  </div>
-                  <div>
-                    <span>Acces</span>
-                    <strong>{selectedQuote.accessNotes || 'A confirmer'}</strong>
-                  </div>
-                </article>
-
-                {selectedQuote.roomPhotos && selectedQuote.roomPhotos.length > 0 && (
-                  <article className="room-photo-strip">
-                    <span>Photos client</span>
+                <details className="manager-estimate-drawer collapsible-panel">
+                  <summary>
+                    <span className="panel-icon">↧</span>
+                    <span>Infos estimation</span>
+                  </summary>
+                  <article className="estimate-brief">
                     <div>
-                      {selectedQuote.roomPhotos.map((photo, index) => (
-                        <button
-                          aria-label={`Voir la photo ${index + 1} en plein écran`}
-                          className="room-photo-button"
-                          key={`${selectedQuote.id}-room-${index}`}
-                          onClick={() => setFullscreenPhoto(photo)}
-                          type="button"
-                        >
-                          <Image alt="" height={130} src={photo} unoptimized width={190} />
-                        </button>
-                      ))}
+                      <span>Type</span>
+                      <strong>{selectedQuote.propertyType || selectedQuote.service}</strong>
+                    </div>
+                    <div>
+                      <span>Surface</span>
+                      <strong>{selectedQuote.spaceSize || 'A confirmer'}</strong>
+                    </div>
+                    <div>
+                      <span>Etat</span>
+                      <strong>{selectedQuote.currentCondition || 'A confirmer'}</strong>
+                    </div>
+                    <div>
+                      <span>Frequence</span>
+                      <strong>{selectedQuote.frequency || 'A confirmer'}</strong>
+                    </div>
+                    <div>
+                      <span>Pieces</span>
+                      <strong>
+                        {[
+                          selectedQuote.bedrooms && `${selectedQuote.bedrooms} ch.`,
+                          selectedQuote.bathrooms && `${selectedQuote.bathrooms} sdb`,
+                          selectedQuote.rooms && `${selectedQuote.rooms} pieces`,
+                        ]
+                          .filter(Boolean)
+                          .join(' / ') || 'A confirmer'}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Options</span>
+                      <strong>{selectedQuote.extras || 'Aucune option'}</strong>
+                    </div>
+                    <div>
+                      <span>Acces</span>
+                      <strong>{selectedQuote.accessNotes || 'A confirmer'}</strong>
                     </div>
                   </article>
+                </details>
+
+                {selectedQuote.roomPhotos && selectedQuote.roomPhotos.length > 0 && (
+                  <details className="manager-photo-drawer collapsible-panel">
+                    <summary>
+                      <span className="panel-icon">{selectedQuote.roomPhotos.length}</span>
+                      <span>Photos client</span>
+                    </summary>
+                    <article className="room-photo-strip">
+                      <div>
+                        {selectedQuote.roomPhotos.map((photo, index) => (
+                          <button
+                            aria-label={`Voir la photo ${index + 1} en plein écran`}
+                            className="room-photo-button"
+                            key={`${selectedQuote.id}-room-${index}`}
+                            onClick={() => setFullscreenPhoto(photo)}
+                            type="button"
+                          >
+                            <Image alt="" height={130} src={photo} unoptimized width={190} />
+                          </button>
+                        ))}
+                      </div>
+                    </article>
+                  </details>
                 )}
 
                 <details className="manager-note collapsible-panel">
                   <summary>
-                    <span className="panel-icon">📝</span>
-                  <span>Détails client</span>
+                    <span className="panel-icon">i</span>
+                    <span>Note</span>
                   </summary>
                   <p>{selectedQuote.message || 'Aucun détail supplémentaire.'}</p>
                 </details>
