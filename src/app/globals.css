@@ -89,68 +89,16 @@ nav,
   height: 38px;
   place-items: center;
   border-radius: 8px;
-  background: linear-gradient(135deg, #0f766e, #19a08f);
+  background:
+    url("/logo-cleaning.png") center / cover no-repeat,
+    linear-gradient(135deg, #0f766e, #19a08f);
   box-shadow: 0 10px 26px rgba(15, 118, 110, 0.18);
   overflow: hidden;
 }
 
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  right: 8px;
-  bottom: 9px;
-  width: 14px;
-  height: 3px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  transform: rotate(-18deg);
-}
-
 .brand-sun,
 .brand-shine {
-  position: absolute;
-  display: block;
-}
-
-.brand-sun {
-  left: 18px;
-  top: 6px;
-  width: 4px;
-  height: 26px;
-  border-radius: 999px;
-  background: #f8d35d;
-  box-shadow: 0 0 0 2px rgba(20, 33, 61, 0.08);
-  transform: rotate(38deg);
-  transform-origin: center;
-}
-
-.brand-shine {
-  right: 8px;
-  bottom: 8px;
-  width: 16px;
-  height: 11px;
-  border-radius: 3px 3px 8px 8px;
-  background: #ffffff;
-  transform: rotate(-18deg);
-}
-
-.brand-shine::before,
-.brand-shine::after {
-  content: "";
-  position: absolute;
-  bottom: -3px;
-  width: 2px;
-  height: 7px;
-  border-radius: 999px;
-  background: #bee6df;
-}
-
-.brand-shine::before {
-  left: 4px;
-}
-
-.brand-shine::after {
-  right: 4px;
+  display: none;
 }
 
 nav {

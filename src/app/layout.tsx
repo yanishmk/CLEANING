@@ -14,9 +14,9 @@ export const metadata: Metadata = {
     'nettoyage commercial',
   ],
   icons: {
-    icon: '/logo.svg',
-    shortcut: '/logo.svg',
-    apple: '/logo.svg',
+    icon: '/logo-cleaning.png',
+    shortcut: '/logo-cleaning.png',
+    apple: '/logo-cleaning.png',
   },
 };
 
