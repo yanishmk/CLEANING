@@ -872,18 +872,18 @@ h3 {
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  padding-bottom: 14px;
+  gap: 0;
+  padding: 8px 0 16px;
 }
 
 .quote-stepper::before,
 .quote-stepper::after {
   content: "";
   position: absolute;
-  left: 5%;
-  right: 5%;
-  bottom: 3px;
-  height: 4px;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 3px;
   border-radius: 999px;
 }
 
@@ -894,10 +894,10 @@ h3 {
 .quote-stepper::after {
   right: auto;
   width: var(--quote-progress, 0%);
-  max-width: 90%;
+  max-width: 100%;
   background: linear-gradient(90deg, #0f766e, #22c55e);
-  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.24);
-  transition: width 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: none;
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .quote-stepper > span {
@@ -906,55 +906,61 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
+  gap: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 900;
-  min-height: 60px;
-  padding: 10px 14px;
-  box-shadow: 0 10px 24px rgba(16, 42, 67, 0.05);
+  min-height: 44px;
+  padding: 6px 10px;
+  box-shadow: none;
   transition:
-    border-color 220ms ease,
-    box-shadow 220ms ease,
     color 220ms ease,
     transform 220ms ease;
 }
 
 .quote-stepper > span.active {
-  border-color: rgba(15, 118, 110, 0.3);
   color: var(--teal-dark);
-  box-shadow: 0 16px 34px rgba(15, 118, 110, 0.12);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .quote-stepper > span.done {
-  border-color: rgba(15, 118, 110, 0.2);
   color: var(--teal-dark);
 }
 
 .quote-stepper span span {
   display: inline-grid;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   place-items: center;
-  border-radius: 50%;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  border-radius: 999px;
   background: var(--mint);
   color: var(--teal-dark);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   transition: background 220ms ease, color 220ms ease, transform 220ms ease;
 }
 
 .quote-stepper > span.active span,
 .quote-stepper > span.done span {
   background: #0f766e;
+  border-color: #0f766e;
   color: #fff;
 }
 
-.quote-stepper > span.active span {
-  animation: step-pulse 1.4s ease-in-out infinite;
+.quote-stepper > span.done span {
+  font-size: 0;
+}
+
+.quote-stepper > span.done span::before {
+  content: "";
+  width: 8px;
+  height: 4px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
 }
 
 .quote-step {
@@ -2867,19 +2873,6 @@ h3 {
   }
 }
 
-@keyframes step-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.24);
-    transform: scale(1);
-  }
-
-  50% {
-    box-shadow: 0 0 0 8px rgba(15, 118, 110, 0);
-    transform: scale(1.04);
-  }
-}
-
 @keyframes float-note {
   0%,
   100% {
@@ -3102,9 +3095,9 @@ h3 {
 
   .quote-stepper {
     display: flex;
-    gap: 6px;
+    gap: 0;
     overflow-x: auto;
-    padding: 0 0 14px;
+    padding: 4px 0 14px;
     scroll-snap-type: x mandatory;
   }
 
@@ -3118,11 +3111,11 @@ h3 {
   .quote-stepper > span {
     flex: 0 0 auto;
     min-width: 42px;
-    min-height: 46px;
+    min-height: 40px;
     justify-content: center;
     scroll-snap-align: start;
     font-size: 0;
-    padding: 7px;
+    padding: 6px 9px;
   }
 
   .quote-stepper span span {
@@ -3132,7 +3125,7 @@ h3 {
   }
 
   .quote-stepper > span.active {
-    min-width: 124px;
+    min-width: 104px;
     justify-content: flex-start;
     font-size: 0.82rem;
   }
