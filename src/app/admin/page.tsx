@@ -153,6 +153,8 @@ export default function AdminPage() {
   const [showClientInfo, setShowClientInfo] = useState(false);
   const [showTreatment, setShowTreatment] = useState(false);
   const [showQuoteActions, setShowQuoteActions] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState('');
   const [activeTab, setActiveTab] = useState<AdminTab>('dossiers');
   const [saving, setSaving] = useState(false);
   const [creatingWorker, setCreatingWorker] = useState(false);
@@ -162,6 +164,7 @@ export default function AdminPage() {
     if (!selectedQuote) return [];
     return notifications.filter((notification) => notification.quoteId === selectedQuote.id).slice(0, 4);
   }, [notifications, selectedQuote]);
+  const recentNotifications = useMemo(() => notifications.slice(0, 6), [notifications]);
 
   const filteredQuotes = useMemo(() => {
     const term = search.toLowerCase().trim();
@@ -401,6 +404,48 @@ export default function AdminPage() {
           <span>Cleaning Sol Manager</span>
         </Link>
         <div className="manager-nav-actions">
+          <div className="admin-notification-menu">
+            <button
+              aria-expanded={showNotifications}
+              aria-label="Notifications admin"
+              className="notification-bubble-button"
+              onClick={() => setShowNotifications((current) => !current)}
+              type="button"
+            >
+              <span aria-hidden="true">!</span>
+              {notifications.length > 0 && <strong>{notifications.length}</strong>}
+            </button>
+            {showNotifications && (
+              <div className="admin-notification-popover">
+                <div className="notification-feed-head">
+                  <span>Notifications</span>
+                  <strong>{notifications.length}</strong>
+                </div>
+                {recentNotifications.length > 0 ? (
+                  recentNotifications.map((notification) => (
+                    <button
+                      className={`notification-item tone-${notification.tone}`}
+                      key={notification.id}
+                      onClick={() => {
+                        const quote = quotes.find((item) => item.id === notification.quoteId);
+                        if (quote) syncEditor(quote);
+                        else setSelectedId(notification.quoteId);
+                        setActiveTab('dossiers');
+                        setShowNotifications(false);
+                      }}
+                      type="button"
+                    >
+                      <span>{new Date(notification.createdAt).toLocaleDateString('fr-CA')}</span>
+                      <strong>{notification.title}</strong>
+                      <p>{notification.message}</p>
+                    </button>
+                  ))
+                ) : (
+                  <p className="notification-empty">Aucune notification pour le moment.</p>
+                )}
+              </div>
+            )}
+          </div>
           <Link className="button button-secondary button-small" href="/portail">
             Portail client
           </Link>
@@ -651,7 +696,15 @@ export default function AdminPage() {
                     <span>Photos client</span>
                     <div>
                       {selectedQuote.roomPhotos.map((photo, index) => (
-                        <Image alt="" height={130} key={`${selectedQuote.id}-room-${index}`} src={photo} unoptimized width={190} />
+                        <button
+                          aria-label={`Voir la photo ${index + 1} en plein écran`}
+                          className="room-photo-button"
+                          key={`${selectedQuote.id}-room-${index}`}
+                          onClick={() => setFullscreenPhoto(photo)}
+                          type="button"
+                        >
+                          <Image alt="" height={130} src={photo} unoptimized width={190} />
+                        </button>
                       ))}
                     </div>
                   </article>
@@ -777,6 +830,17 @@ export default function AdminPage() {
             </section>
           )}
         </>
+      )}
+      {fullscreenPhoto && (
+        <div className="photo-lightbox" role="dialog" aria-modal="true" aria-label="Photo en plein écran">
+          <button className="photo-lightbox-backdrop" aria-label="Fermer" onClick={() => setFullscreenPhoto('')} type="button" />
+          <div className="photo-lightbox-content">
+            <button className="photo-lightbox-close" onClick={() => setFullscreenPhoto('')} type="button">
+              Fermer
+            </button>
+            <Image alt="" height={900} src={fullscreenPhoto} unoptimized width={1200} />
+          </div>
+        </div>
       )}
     </main>
   );

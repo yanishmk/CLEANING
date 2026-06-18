@@ -161,7 +161,92 @@ nav a:hover,
 .manager-nav-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
+}
+
+.admin-notification-menu {
+  position: relative;
+}
+
+.notification-bubble-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--teal-dark);
+  cursor: pointer;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(16, 42, 67, 0.08);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.notification-bubble-button:hover {
+  border-color: rgba(15, 118, 110, 0.4);
+  background: var(--mint);
+  transform: translateY(-1px);
+}
+
+.notification-bubble-button > span {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--teal);
+  color: #fff;
+}
+
+.notification-bubble-button strong {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.admin-notification-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 28px));
+  max-height: 430px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.admin-notification-popover .notification-item {
+  border: 0;
+  border-left: 4px solid rgba(15, 118, 110, 0.24);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.notification-empty {
+  color: var(--muted);
+  margin: 0;
 }
 
 .hero-section {
@@ -2456,6 +2541,71 @@ h3 {
   border-radius: 8px;
   border: 1px solid var(--line);
   object-fit: cover;
+}
+
+.room-photo-button {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: zoom-in;
+  padding: 0;
+}
+
+.room-photo-button img {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.room-photo-button:hover img {
+  box-shadow: 0 14px 28px rgba(16, 42, 67, 0.16);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+
+.photo-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(3, 24, 31, 0.78);
+  cursor: zoom-out;
+}
+
+.photo-lightbox-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  max-width: min(1100px, 94vw);
+  max-height: 92vh;
+  gap: 12px;
+}
+
+.photo-lightbox-content img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 84vh;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.photo-lightbox-close {
+  justify-self: end;
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 900;
+  padding: 0 14px;
 }
 
 .manager-edit-form {
