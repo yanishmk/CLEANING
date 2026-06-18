@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { type CSSProperties, ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLang } from '@/context/LangContext';
@@ -766,9 +766,13 @@ export default function Home() {
           </div>
         </div>
         <form className="quote-form" ref={quoteFormRef} onSubmit={handleQuoteFormSubmit} noValidate>
-          <div className="quote-stepper full" aria-label="Etapes du questionnaire">
+          <div
+            className="quote-stepper full"
+            aria-label="Etapes du questionnaire"
+            style={{ '--quote-progress': `${(quoteStep / (quoteSteps.length - 1)) * 100}%` } as CSSProperties}
+          >
             {quoteSteps.map((step, index) => (
-              <span className={index <= quoteStep ? 'active' : ''} key={step}>
+              <span className={index < quoteStep ? 'done' : index === quoteStep ? 'active' : ''} key={step}>
                 <span>{index + 1}</span>
                 {step}
               </span>

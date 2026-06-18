@@ -869,54 +869,92 @@ h3 {
 }
 
 .quote-stepper {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 14px;
+  padding-bottom: 14px;
+}
+
+.quote-stepper::before,
+.quote-stepper::after {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 3px;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.quote-stepper::before {
+  background: #dbe3ea;
+}
+
+.quote-stepper::after {
+  right: auto;
+  width: var(--quote-progress, 0%);
+  max-width: 90%;
+  background: linear-gradient(90deg, #0f766e, #22c55e);
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.24);
+  transition: width 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .quote-stepper > span {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: #fff;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 900;
-  padding: 8px 10px;
-}
-
-.quote-stepper > span::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: -5px;
-  height: 3px;
-  border-radius: 999px;
-  background: #dbe3ea;
+  min-height: 60px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 24px rgba(16, 42, 67, 0.05);
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    color 220ms ease,
+    transform 220ms ease;
 }
 
 .quote-stepper > span.active {
   border-color: rgba(15, 118, 110, 0.3);
   color: var(--teal-dark);
+  box-shadow: 0 16px 34px rgba(15, 118, 110, 0.12);
+  transform: translateY(-2px);
 }
 
-.quote-stepper > span.active::after {
-  background: linear-gradient(90deg, #0f766e, #22c55e);
+.quote-stepper > span.done {
+  border-color: rgba(15, 118, 110, 0.2);
+  color: var(--teal-dark);
 }
 
 .quote-stepper span span {
   display: inline-grid;
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  height: 34px;
   place-items: center;
   border-radius: 50%;
   background: var(--mint);
   color: var(--teal-dark);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
+  transition: background 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.quote-stepper > span.active span,
+.quote-stepper > span.done span {
+  background: #0f766e;
+  color: #fff;
+}
+
+.quote-stepper > span.active span {
+  animation: step-pulse 1.4s ease-in-out infinite;
 }
 
 .quote-step {
@@ -2829,6 +2867,19 @@ h3 {
   }
 }
 
+@keyframes step-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.24);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(15, 118, 110, 0);
+    transform: scale(1.04);
+  }
+}
+
 @keyframes float-note {
   0%,
   100% {
@@ -3053,13 +3104,21 @@ h3 {
     display: flex;
     gap: 6px;
     overflow-x: auto;
-    padding: 0 0 8px;
+    padding: 0 0 14px;
     scroll-snap-type: x mandatory;
+  }
+
+  .quote-stepper::before,
+  .quote-stepper::after {
+    left: 12px;
+    right: 12px;
+    bottom: 4px;
   }
 
   .quote-stepper > span {
     flex: 0 0 auto;
     min-width: 42px;
+    min-height: 46px;
     justify-content: center;
     scroll-snap-align: start;
     font-size: 0;
@@ -3073,7 +3132,7 @@ h3 {
   }
 
   .quote-stepper > span.active {
-    min-width: 116px;
+    min-width: 124px;
     justify-content: flex-start;
     font-size: 0.82rem;
   }
