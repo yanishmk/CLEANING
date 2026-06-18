@@ -89,9 +89,7 @@ nav,
   height: 38px;
   place-items: center;
   border-radius: 8px;
-  background:
-    radial-gradient(circle at 68% 28%, #fff7cf 0 12%, transparent 13%),
-    linear-gradient(135deg, #0f766e, #22c55e);
+  background: linear-gradient(135deg, #0f766e, #19a08f);
   box-shadow: 0 10px 26px rgba(15, 118, 110, 0.18);
   overflow: hidden;
 }
@@ -99,9 +97,13 @@ nav,
 .brand-mark::after {
   content: "";
   position: absolute;
-  inset: 7px;
-  border: 2px solid rgba(255, 255, 255, 0.72);
-  border-radius: 7px;
+  right: 8px;
+  bottom: 9px;
+  width: 14px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  transform: rotate(-18deg);
 }
 
 .brand-sun,
@@ -111,41 +113,44 @@ nav,
 }
 
 .brand-sun {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  left: 18px;
+  top: 6px;
+  width: 4px;
+  height: 26px;
+  border-radius: 999px;
   background: #f8d35d;
-  right: 8px;
-  top: 7px;
-  box-shadow: 0 0 0 4px rgba(248, 211, 93, 0.26);
+  box-shadow: 0 0 0 2px rgba(20, 33, 61, 0.08);
+  transform: rotate(38deg);
+  transform-origin: center;
 }
 
 .brand-shine {
-  left: 9px;
-  bottom: 10px;
-  width: 18px;
-  height: 10px;
-  border-radius: 999px 999px 2px 2px;
-  background: rgba(255, 255, 255, 0.9);
+  right: 8px;
+  bottom: 8px;
+  width: 16px;
+  height: 11px;
+  border-radius: 3px 3px 8px 8px;
+  background: #ffffff;
+  transform: rotate(-18deg);
 }
 
 .brand-shine::before,
 .brand-shine::after {
   content: "";
   position: absolute;
-  top: -5px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
+  bottom: -3px;
+  width: 2px;
+  height: 7px;
+  border-radius: 999px;
+  background: #bee6df;
 }
 
 .brand-shine::before {
-  left: 0;
+  left: 4px;
 }
 
 .brand-shine::after {
-  right: 0;
+  right: 4px;
 }
 
 nav {
