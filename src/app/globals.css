@@ -873,7 +873,7 @@ h3 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
-  padding: 8px 0 16px;
+  padding: 6px 0 8px;
 }
 
 .quote-stepper::before,
@@ -882,7 +882,7 @@ h3 {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 4px;
+  bottom: 0;
   height: 3px;
   border-radius: 999px;
 }
@@ -895,8 +895,10 @@ h3 {
   right: auto;
   width: var(--quote-progress, 0%);
   max-width: 100%;
-  background: linear-gradient(90deg, #0f766e, #22c55e);
+  background: linear-gradient(90deg, #0f766e, #22c55e, #0f766e);
+  background-size: 180% 100%;
   box-shadow: none;
+  animation: step-line-sheen 1.8s ease-in-out infinite;
   transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -913,7 +915,7 @@ h3 {
   color: var(--muted);
   font-size: 0.9rem;
   font-weight: 900;
-  min-height: 44px;
+  min-height: 42px;
   padding: 6px 10px;
   box-shadow: none;
   transition:
@@ -923,7 +925,7 @@ h3 {
 
 .quote-stepper > span.active {
   color: var(--teal-dark);
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .quote-stepper > span.done {
@@ -932,14 +934,15 @@ h3 {
 
 .quote-stepper span span {
   display: inline-grid;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   place-items: center;
   border: 1px solid rgba(15, 118, 110, 0.14);
   border-radius: 999px;
   background: var(--mint);
   color: var(--teal-dark);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   transition: background 220ms ease, color 220ms ease, transform 220ms ease;
 }
 
@@ -2873,6 +2876,17 @@ h3 {
   }
 }
 
+@keyframes step-line-sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 @keyframes float-note {
   0%,
   100% {
@@ -3097,7 +3111,7 @@ h3 {
     display: flex;
     gap: 0;
     overflow-x: auto;
-    padding: 4px 0 14px;
+    padding: 4px 0 9px;
     scroll-snap-type: x mandatory;
   }
 
@@ -3105,7 +3119,7 @@ h3 {
   .quote-stepper::after {
     left: 12px;
     right: 12px;
-    bottom: 4px;
+    bottom: 0;
   }
 
   .quote-stepper > span {
@@ -3119,9 +3133,10 @@ h3 {
   }
 
   .quote-stepper span span {
-    width: 26px;
-    height: 26px;
-    font-size: 0.8rem;
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 0.86rem;
   }
 
   .quote-stepper > span.active {
